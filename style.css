@@ -1,0 +1,88 @@
+body {
+    padding-top: 5em;
+    display: flex;
+    justify-content: center;
+}
+
+/*Page Gradient*/
+body.bg-gradient{
+    height: 100vh;
+    width: 100%; /* Add this line to make the gradient fill the entire width */
+    background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+}
+
+/*typewriter effect for all headers*/
+h1{
+    color: #ffffff; /* Set text color to white */
+    font-family: monospace;
+    overflow: hidden;
+    border-right: .15em solid rgb(255, 255, 255);
+    white-space: nowrap;
+    letter-spacing: .15em;
+    animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+    height: 1.2em;
+    text-align: center;
+}
+
+/* The typing effect */
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+  
+/* The typewriter cursor effect */
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: rgb(255, 255, 255); }
+}
+
+p {
+    text-align: center;
+    color: white;
+    font-family: monospace;
+    letter-spacing: .15em;
+}
+
+/*CustomerID, first name*/
+.customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+    color: white;
+    font-family: monospace;
+    text-align: center;
+    letter-spacing: .15em;
+}
+
+/* Container for positioning */
+.content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/*Button to view transactions and customer info*/
+.button, .buttoninfo{
+    color: white;
+    background-color: rgb(78, 131, 177);
+    position: absolute;
+    padding: 10px 20px; 
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    font-family: monospace;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid white;
+    transition: background-color 0.3s;
+    border-radius: 12px;
+}
+/*Button for customer info page*/
+.buttoninfo{
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.button:hover, .buttoninfo:hover{
+    background-color: rgb(66, 112, 153);
+}

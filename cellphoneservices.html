@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            .firstname{
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .lastname{
+                position: absolute;
+                top: 25%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .phonenum{
+                position: absolute;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .phoneplan{
+                position: absolute;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .payplan{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+        <!--Typewriter customer info-->
+        <div class="custinfo">
+            <h1>Customer Information</h1> 
+        </div>
+        <br><br>
+        <!--Enter First and Last name-->
+        <div class="firstname">
+            <strong><label for = "firstName"><b>First name:</b></label></strong>
+            <br>
+            <input type="text" name="firstname" id="firstname" maxlength="20" required>
+            <br><br>
+        </div>
+        <div class="lastname">
+            <strong><label for = "lastName"><b>Last name:</b></label></strong>
+            <br>
+            <input type="text" name="lastname" id="lastname" maxlength="20" required>
+            <br><br>
+        </div>
+        <!--Phone number-->
+        <div class="phonenum">
+            <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+            <br>
+            <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+            <br><br>
+        </div>
+        <!--Choose phone plan-->
+        <div class="phoneplan">
+            <strong><label for = "phonePlan"><b>Select your Phone Plan:</b></label></strong>
+            <br>
+            <select name = "plans" id = "plans">
+                <option value="Post-Paid">Post-Paid</option>
+                <option value="Pre-Paid">Pre-Paid</option>
+            </select>
+            <br><br>
+        </div>
+        <!--Choose payment method-->
+        <div class="payplan">
+            <strong><label for = "payPlan"><b>Select your Payment Method:</b></label></strong>
+            <br>
+            <select name = "pay" id = "pay">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
+            <br><br>
+        </div>
+        <div class="buttoninfo">
+               <a href="transactions.html" class="button">
+                View transaction
+               </a>
+        </div>
+    </body>
+
+</html>
