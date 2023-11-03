@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cell Phone Company </title> 
+        <style>
+            p{ /*Please enter your CustomerID*/
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .customerId{ /*User input*/
+                font-family: monospace;
+                position: absolute;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .transactions{ /*Transactions*/
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .servicelinks{
+                display: flex;
+                gap: 2rem;
+                align-items: center;
+                font-family: monospace;
+                position: absolute;
+                top: 45%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .phonenum{
+                font-family: monospace;
+                position: absolute;
+                top: 35%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+        <div class="intro">
+            <h1>HW2: Cell Phone Company</h1> 
+        </div>
+        <br><br>
+        <p>Please enter your CustomerID.</p>
+        <!--Enter CustomerID-->
+       <div class="customerId">
+            <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
+            <br>
+            <input type="text" name="custID" id="customerid" maxlength="2" required>
+            <h3>OR</h3>
+            <br><br>
+        </div>
+       <!--Phone number-->
+       <div class="phonenum">
+            <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+            <br>
+            <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+            <br><br>
+        </div>
+        <!--Go to a new page to allow transaction for a customer, see all payment methods, etc.-->
+        <div class = "servicelinks">
+            <span><a href="cellphoneservices.html" style="color: white;">Buy Services</a></span>
+            <span><a href="paymentmethod.html" style="color: white;">Payment Methods</a></span>
+            <a href="phoneplans.html" style="color: white;">Phone Plans</a>
+            <a href="datausage.html" style="color: white;">Data Usage</a>
+        </div>
+        <div class="transactions">
+            <p>Transactions:</p>
+        </div>
+        <!--Click Get Transactions to view transactions-->
+        <div class="button">
+            <a href="main.html" class="button"> View transactions</a>
+        </div>
+        <!--Link JS file-->
+        <script src="hw2.js"></script>
+    </body>
+</html>
