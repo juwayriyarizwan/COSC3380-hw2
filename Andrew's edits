@@ -1,0 +1,722 @@
+const express = require('express');
+const { Pool } = require('pg');
+const app = express();
+const port = 3000;
+
+const creds = require('./creds.json');
+const pool = new Pool(creds);
+----------------------------------------------------------------------------------------------------------------------
+app.get('/', async (req, res) => {
+    const customerId = req.query.customerId;
+    let transactionsHtml = "";
+    let customerName = "";
+
+    if (customerId) {
+        try {
+            const result = await pool.query(`
+            SELECT
+            c.customer_id,
+            c.fname,
+            c.lname,
+            c.payment_method,
+            c.phone_plan,
+            c.bill_amount,
+            c.call_time,
+            c.data_usage,
+            t.t_id AS transaction_id,
+            t.transaction_date
+        FROM
+            customer c
+        LEFT JOIN transactions t ON c.customer_id = t.customer_id
+        WHERE
+            c.customer_id = $1;
+            `, [customerId]);
+
+            if (result.rows.length > 0) {
+                customerName = result.rows[0].fname + " " + result.rows[0].lname;
+                transactionsHtml = result.rows.map(row => {
+                    return `
+                    <p>Customer ID: ${customerData.customer_id}</p>
+                    <p>Customer Name: ${customerName}</p>
+                    <p>Payment Method: ${customerData.payment_method}</p>
+                    <p>Phone Plan: ${customerData.phone_plan}</p>
+                    <p>Bill Amount: ${customerData.bill_amount}</p>
+                    <p>Call Time: ${customerData.call_time}</p>
+                    <p>Data Usage: ${customerData.data_usage}</p>
+                    `;
+                }).join('');
+            }
+        } catch (err) {
+            return res.status(500).send("Error: " + err.message);
+        }
+    }
+----------------------------------------------------------------------------------------------------------------------
+    res.send(`
+    <!DOCTYPE html>
+    <html lang = "en">
+        <head>
+            <meta charset="UTF-8"> 
+            <link rel="stylesheet" type="text/css" href="style.css">
+            <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Cell Phone Company </title> 
+            <style>
+                p{ /*Please enter your CustomerID*/
+                    position: absolute;
+                    top: 20%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                .customerId{ /*User input*/
+                    font-family: monospace;
+                    position: absolute;
+                    top: 30%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                .transactions{ /*Transactions*/
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                .servicelinks{
+                    display: flex;
+                    gap: 2rem;
+                    align-items: center;
+                    font-family: monospace;
+                    position: absolute;
+                    top: 45%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+                .phonenum{
+                    font-family: monospace;
+                    position: absolute;
+                    top: 35%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            </style>
+        </head>
+        <body class="bg-gradient">
+            <div class="intro">
+                <h1>HW2: Cell Phone Company</h1> 
+            </div>
+            <br><br>
+            <p>Please enter your CustomerID.</p>
+            <!--Enter CustomerID-->
+           <div class="customerId">
+                <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
+                <br>
+                <input type="text" name="custID" id="customerid" maxlength="2" required>
+                <h3>OR</h3>
+                <br><br>
+            </div>
+           <!--Phone number-->
+           <div class="phonenum">
+                <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+                <br>
+                <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+                <br><br>
+            </div>
+            <!--Go to a new page to allow transaction for a customer, see all payment methods, etc.-->
+            <div class = "servicelinks">
+                <span><a href="cellphoneservices.html" style="color: white;">Buy Services</a></span>
+                <span><a href="paymentmethod.html" style="color: white;">Payment Methods</a></span>
+                <a href="phoneplans.html" style="color: white;">Phone Plans</a>
+                <a href="datausage.html" style="color: white;">Data Usage</a>
+            </div>
+            <div class="transactions">
+                <p>Transactions:</p>
+            </div>
+            <!--Click Get Transactions to view transactions-->
+            <div class="button">
+                <a href="main.html" class="button"> View transactions</a>
+            </div>
+            <!--Link JS file-->
+            <script src="hw2.js"></script>
+        </body>
+    </html>
+    `);
+});
+
+app.get('/cellphoneservices.html', (req, res) => {
+    res.sendFile(__dirname + '/cellphoneservices.html');
+
+    res.send(`
+    <!DOCTYPE html>
+    <html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            .firstname{
+                position: absolute;
+                top: 20%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .lastname{
+                position: absolute;
+                top: 25%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .phonenum{
+                position: absolute;
+                top: 30%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .phoneplan{
+                position: absolute;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .payplan{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            body {
+                padding-top: 5em;
+                display: flex;
+                justify-content: center;
+            }
+            
+            /*Page Gradient*/
+            body.bg-gradient{
+                height: 100vh;
+                width: 100%; /* Add this line to make the gradient fill the entire width */
+                background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+            }
+            
+            /*typewriter effect for all headers*/
+            h1{
+                color: #ffffff; /* Set text color to white */
+                font-family: monospace;
+                overflow: hidden;
+                border-right: .15em solid rgb(255, 255, 255);
+                white-space: nowrap;
+                letter-spacing: .15em;
+                animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                height: 1.2em;
+                text-align: center;
+            }
+            
+            /* The typing effect */
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+              
+            /* The typewriter cursor effect */
+            @keyframes blink-caret {
+                from, to { border-color: transparent }
+                50% { border-color: rgb(255, 255, 255); }
+            }
+            
+            p {
+                text-align: center;
+                color: white;
+                font-family: monospace;
+                letter-spacing: .15em;
+            }
+            
+            /*CustomerID, first name*/
+            .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            
+            /* Container for positioning */
+            .content-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            
+            /*Button to view transactions and customer info*/
+            .button, .buttoninfo{
+                color: white;
+                background-color: rgb(78, 131, 177);
+                position: absolute;
+                padding: 10px 20px; 
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                cursor: pointer;
+                font-family: monospace;
+                text-align: center;
+                text-decoration: none;
+                border: 1px solid white;
+                transition: background-color 0.3s;
+                border-radius: 12px;
+            }
+            /*Button for customer info page*/
+            .buttoninfo{
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .button:hover, .buttoninfo:hover{
+                background-color: rgb(66, 112, 153);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+        <!--Typewriter customer info-->
+        <div class="custinfo">
+            <h1>Customer Information</h1> 
+        </div>
+        <br><br>
+        <!--Enter First and Last name-->
+        <div class="firstname">
+            <strong><label for = "firstName"><b>First name:</b></label></strong>
+            <br>
+            <input type="text" name="firstname" id="firstname" maxlength="20" required>
+            <br><br>
+        </div>
+        <div class="lastname">
+            <strong><label for = "lastName"><b>Last name:</b></label></strong>
+            <br>
+            <input type="text" name="lastname" id="lastname" maxlength="20" required>
+            <br><br>
+        </div>
+        <!--Phone number-->
+        <div class="phonenum">
+            <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+            <br>
+            <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+            <br><br>
+        </div>
+        <!--Choose phone plan-->
+        <div class="phoneplan">
+            <strong><label for = "phonePlan"><b>Select your Phone Plan:</b></label></strong>
+            <br>
+            <select name = "plans" id = "plans">
+                <option value="Post-Paid">Post-Paid</option>
+                <option value="Pre-Paid">Pre-Paid</option>
+            </select>
+            <br><br>
+        </div>
+        <!--Choose payment method-->
+        <div class="payplan">
+            <strong><label for = "payPlan"><b>Select your Payment Method:</b></label></strong>
+            <br>
+            <select name = "pay" id = "pay">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+            </select>
+            <br><br>
+        </div>
+        <div class="buttoninfo">
+               <a href="transactions.html" class="button">
+                View transaction
+               </a>
+        </div>
+    </body>
+
+</html>
+    `)
+});
+
+app.get('/paymentmethod.html', (req, res) => {
+    res.sendFile(__dirname + '/paymentmethod.html');
+
+    res.send(`
+    <!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            h3{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            body {
+                padding-top: 5em;
+                display: flex;
+                justify-content: center;
+            }
+            
+            /*Page Gradient*/
+            body.bg-gradient{
+                height: 100vh;
+                width: 100%; /* Add this line to make the gradient fill the entire width */
+                background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+            }
+            
+            /*typewriter effect for all headers*/
+            h1{
+                color: #ffffff; /* Set text color to white */
+                font-family: monospace;
+                overflow: hidden;
+                border-right: .15em solid rgb(255, 255, 255);
+                white-space: nowrap;
+                letter-spacing: .15em;
+                animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                height: 1.2em;
+                text-align: center;
+            }
+            
+            /* The typing effect */
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+              
+            /* The typewriter cursor effect */
+            @keyframes blink-caret {
+                from, to { border-color: transparent }
+                50% { border-color: rgb(255, 255, 255); }
+            }
+            
+            p {
+                text-align: center;
+                color: white;
+                font-family: monospace;
+                letter-spacing: .15em;
+            }
+            
+            /*CustomerID, first name*/
+            .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            
+            /* Container for positioning */
+            .content-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            
+            /*Button to view transactions and customer info*/
+            .button, .buttoninfo{
+                color: white;
+                background-color: rgb(78, 131, 177);
+                position: absolute;
+                padding: 10px 20px; 
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                cursor: pointer;
+                font-family: monospace;
+                text-align: center;
+                text-decoration: none;
+                border: 1px solid white;
+                transition: background-color 0.3s;
+                border-radius: 12px;
+            }
+            /*Button for customer info page*/
+            .buttoninfo{
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .button:hover, .buttoninfo:hover{
+                background-color: rgb(66, 112, 153);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+       <!--Typewriter view all customer payment methods-->
+       <div class="paymethod">
+        <h1>Payment Method Reports</h1> 
+    </div>
+    <br><br>
+    </body>
+</html>
+    `)
+});
+
+app.get('/phoneplans.html', (req, res) => {
+    res.sendFile(__dirname + '/phoneplans.html');
+
+    res.send(`
+    <!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            h3{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            body {
+                padding-top: 5em;
+                display: flex;
+                justify-content: center;
+            }
+            
+            /*Page Gradient*/
+            body.bg-gradient{
+                height: 100vh;
+                width: 100%; /* Add this line to make the gradient fill the entire width */
+                background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+            }
+            
+            /*typewriter effect for all headers*/
+            h1{
+                color: #ffffff; /* Set text color to white */
+                font-family: monospace;
+                overflow: hidden;
+                border-right: .15em solid rgb(255, 255, 255);
+                white-space: nowrap;
+                letter-spacing: .15em;
+                animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                height: 1.2em;
+                text-align: center;
+            }
+            
+            /* The typing effect */
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+              
+            /* The typewriter cursor effect */
+            @keyframes blink-caret {
+                from, to { border-color: transparent }
+                50% { border-color: rgb(255, 255, 255); }
+            }
+            
+            p {
+                text-align: center;
+                color: white;
+                font-family: monospace;
+                letter-spacing: .15em;
+            }
+            
+            /*CustomerID, first name*/
+            .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            
+            /* Container for positioning */
+            .content-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            
+            /*Button to view transactions and customer info*/
+            .button, .buttoninfo{
+                color: white;
+                background-color: rgb(78, 131, 177);
+                position: absolute;
+                padding: 10px 20px; 
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                cursor: pointer;
+                font-family: monospace;
+                text-align: center;
+                text-decoration: none;
+                border: 1px solid white;
+                transition: background-color 0.3s;
+                border-radius: 12px;
+            }
+            /*Button for customer info page*/
+            .buttoninfo{
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .button:hover, .buttoninfo:hover{
+                background-color: rgb(66, 112, 153);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+       <!--Typewriter view all customer phone plans-->
+       <div class="phoneplan">
+        <h1>Phone Plan Reports</h1> 
+    </div>
+    <br><br>
+    </body>
+</html>
+    `)
+});
+
+app.get('/datausage.html', (req, res) => {
+    res.sendFile(__dirname + '/datausage.html');
+
+    res.send(`
+    <!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            h3{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            body {
+                padding-top: 5em;
+                display: flex;
+                justify-content: center;
+            }
+            
+            /*Page Gradient*/
+            body.bg-gradient{
+                height: 100vh;
+                width: 100%; /* Add this line to make the gradient fill the entire width */
+                background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+            }
+            
+            /*typewriter effect for all headers*/
+            h1{
+                color: #ffffff; /* Set text color to white */
+                font-family: monospace;
+                overflow: hidden;
+                border-right: .15em solid rgb(255, 255, 255);
+                white-space: nowrap;
+                letter-spacing: .15em;
+                animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                height: 1.2em;
+                text-align: center;
+            }
+            
+            /* The typing effect */
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+              
+            /* The typewriter cursor effect */
+            @keyframes blink-caret {
+                from, to { border-color: transparent }
+                50% { border-color: rgb(255, 255, 255); }
+            }
+            
+            p {
+                text-align: center;
+                color: white;
+                font-family: monospace;
+                letter-spacing: .15em;
+            }
+            
+            /*CustomerID, first name*/
+            .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+            
+            /* Container for positioning */
+            .content-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            
+            /*Button to view transactions and customer info*/
+            .button, .buttoninfo{
+                color: white;
+                background-color: rgb(78, 131, 177);
+                position: absolute;
+                padding: 10px 20px; 
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                cursor: pointer;
+                font-family: monospace;
+                text-align: center;
+                text-decoration: none;
+                border: 1px solid white;
+                transition: background-color 0.3s;
+                border-radius: 12px;
+            }
+            /*Button for customer info page*/
+            .buttoninfo{
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+            .button:hover, .buttoninfo:hover{
+                background-color: rgb(66, 112, 153);
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+       <!--Typewriter view all customer data usage-->
+       <div class="datause">
+        <h1>Data Usage Reports</h1> 
+    </div>
+    <br><br>
+    </body>
+</html>
+    `)
+});
+
+app.get('/transactions.html', (req, res) => {
+    res.sendFile(__dirname + '/transactions.html');
+
+    res.send(`
+    <!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset="UTF-8"> 
+        <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <title>Cell Phone Company </title> 
+        <style>
+            h3{
+                color: white;
+                font-family: monospace;
+                text-align: center;
+                letter-spacing: .15em;
+            }
+        </style>
+    </head>
+    <body class="bg-gradient">
+       <!--Typewriter view customer transactions-->
+       <div class="transaction">
+        <h1>Your transactions:</h1> 
+    </div>
+    <br><br>
+    </body>
+</html>
+    `)
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});
