@@ -39,7 +39,7 @@
                 font-family: monospace;
                 position: absolute;
                 top: 35%;
-                left: 50%;
+                left: 50%;      
                 transform: translate(-50%, -50%);
             }
         </style>
@@ -54,7 +54,7 @@
        <div class="customerId">
             <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
             <br>
-            <input type="text" name="custID" id="customerid" maxlength="2" required>
+            <input type="text" name="customerId" id="customerid" maxlength="2">
             <h3>OR</h3>
             <br><br>
         </div>
@@ -62,7 +62,7 @@
        <div class="phonenum">
             <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
             <br>
-            <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+            <input type="text" name="phoneNum" id="phonenum" maxlength="10">
             <br><br>
         </div>
         <!--Go to a new page to allow transaction for a customer, see all payment methods, etc.-->
@@ -77,7 +77,7 @@
         </div>
         <!--Click Get Transactions to view transactions-->
         <div class="button">
-            <a href="main.html" class="button"> View transactions</a>
+            <button type = "submit"> View Transactions</button>
         </div>
         <!--Link JS file-->
         <script src="hw2.js"></script>
