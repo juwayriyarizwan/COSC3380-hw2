@@ -73,4 +73,5 @@ CREATE TABLE Transactions (
 INSERT INTO Transactions (t_id, customer_id, transaction_date)
 VALUES		(1, 1, '2023-10-25'),
 			(2, 2, '2023-10-26');
+		
 		  
