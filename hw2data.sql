@@ -22,14 +22,16 @@ CREATE TABLE Phone_Plan(
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
 	phone_number BIGINT NOT NULL UNIQUE,
 	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
-	phone_plan VARCHAR(20)
+	phone_plan VARCHAR(20),
+	first_name VARCHAR(20),
+	last_name VARCHAR(20);
 );
 
 -- The two types of phone plan demo
-INSERT INTO Phone_Plan (customer_id, phone_number, phone_plan)
-	VALUES(1, 1234567890, 'Pre-paid'),
-		  (2, 9876543210, 'Post-paid'),
-		  (3, 1111111111, 'Post-paid');
+INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_plan)
+	VALUES(1, 'John', 'Doe', 1234567890, 'Pre-paid'),
+		  (2, 'Jane', 'Doe', 9876543210, 'Post-paid'),
+		  (3, 'Mark', 'Zuckerberg', 1111111111, 'Post-paid');
 
 -- Payment method (contains only information about customer and their method of payment)
 CREATE TABLE Payment_Method(
@@ -78,4 +80,4 @@ INSERT INTO Transactions (t_id, customer_id, transaction_date)
 VALUES		(1, 1, '2023-10-25'),
 			(2, 2, '2023-10-26'),
 			(3, 3, '2023-10-31');
-		
+		  
