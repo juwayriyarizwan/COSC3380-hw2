@@ -580,6 +580,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                         left: 50%;
                         transform: translate(-50%, -50%);
                     }
+                    /*Display info*/
                     .paymentReport{
                         color: white;
                         font-family: monospace;
@@ -611,7 +612,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                 <br>
                 <select name = "pay" id = "pay">
                     <option value="Automatic">Automatic</option>
-                     <option value="Manual">Manual</option>
+                    <option value="Manual">Manual</option>
                 </select>
                 <br><br>
             </div>
@@ -629,21 +630,33 @@ app.get('/paymentmethod.html', async (req, res) => {
 })
 
 // Link to all customers' phone plan
-app.get('/phoneplans.html', (req, res) => {
-    const customerId = req.query.customerId;
-    const phoneNumber = req.query.phoneNum;
-
-    if(customerId || phoneNumber)
+app.get('/phoneplans.html', async(req, res) => {
+    const selectedPlan = req.query.plans;
+    let planHtml = "";
+    if(selectedPlan)
     {
         try{
-
-        }
+            const result = await pool.query(`
+                SELECT 
+                    customer_id, phone_number, first_name, last_name
+                 FROM
+                    Phone_Plan
+                WHERE
+                    phone_plan = $1
+                `, [selectedPlan]);
+            // Display all customers
+            if(result.rows.length > 0){
+                planHtml= result.rows.map(row => {
+                return `<li>Customer ID: ${row.customer_id}, Phone Number: ${row.phone_number}, Name: ${row.first_name} ${row.last_name}</li>`;
+                }).join('');
+            }
+        } 
         // Error
         catch (err) {
             return res.status(500).send("Error: " + err.message);
         }
     }
-    // All payment methods being displayed on webpage
+    // All customers' phone plan displayed
     res.send(`
         <!DOCTYPE html>
         <html lang = "en">
@@ -691,6 +704,41 @@ app.get('/phoneplans.html', (req, res) => {
                         color: white;
                         font-family: monospace;
                     }
+                    /*Button to view phone plans w customer info*/
+                    .reportbutton{
+                        color: white;
+                        background-color: rgb(78, 131, 177);
+                        position: absolute;
+                        padding: 10px 20px; 
+                        top: 40%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        cursor: pointer;
+                        font-family: monospace;
+                        text-align: center;
+                        text-decoration: none;
+                        border: 1px solid white;
+                        transition: background-color 0.3s;
+                        border-radius: 12px;
+                    }
+                    /*Button for phone plan page*/
+                    .reportbutton{
+                        top: 30%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .reportbutton:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    .phoneplanreport{
+                        text-align: center;
+                        position: absolute;
+                        color: white;
+                        font-family: monospace;
+                        top: 20%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
                     h3{
                         color: white;
                         font-family: monospace;
@@ -705,6 +753,25 @@ app.get('/phoneplans.html', (req, res) => {
                 <h1>Phone Plan Reports</h1> 
             </div>
             <br><br>
+            <!--Choose phone plan-->
+            <form action="/phoneplans.html" method = "GET">
+            <div class="phoneplanreport">
+                <strong><label for = "phonePlan"><b>Select a Phone Plan:</b></label></strong>
+                <br>
+                <select name = "plans" id = "plans">
+                    <option value="Post-Paid">Post-Paid</option>
+                    <option value="Pre-Paid">Pre-Paid</option>
+                </select>
+                <br><br>
+            </div>
+            <!--Click View report-->
+            <div class="reportbutton">
+                <button type = "submit"> View Report</button>
+            </div>
+            </form>
+            <div class="planReport">
+                ${planHtml}
+            </div>
             </body>
         </html>
     `);
@@ -725,7 +792,7 @@ app.get('/datausage.html', (req, res) => {
             return res.status(500).send("Error: " + err.message);
         }
     }
-    // All payment methods being displayed on webpage
+    // All cusomers' data usage displayed
     res.send(`
         <!DOCTYPE html>
         <html lang = "en">
