@@ -1,6 +1,6 @@
 -- Main table (contains all customer information)
 CREATE TABLE Customer(
-	customer_id INT NOT NULL PRIMARY KEY,
+	customer_id SERIAL PRIMARY KEY,
 	phone_number BIGINT NOT NULL UNIQUE,
 	first_name VARCHAR(20),
 	last_name VARCHAR(20),
@@ -18,24 +18,24 @@ VALUES (1, 1234567890, 'John', 'Doe', 'Automatic', 'Pre-paid', 50.00, 1024.50),
 
 -- Phone plan (contains only information about customer and their chosen plan)
 CREATE TABLE Phone_Plan(
-	customer_id INT NOT NULL PRIMARY KEY,
+	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
 	phone_number BIGINT NOT NULL UNIQUE,
 	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
 	phone_plan VARCHAR(20),
 	first_name VARCHAR(20),
-	last_name VARCHAR(20);
+	last_name VARCHAR(20)
 );
 
 -- The two types of phone plan demo
-INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_plan)
+INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
 	VALUES(1, 'John', 'Doe', 1234567890, 'Pre-paid'),
 		  (2, 'Jane', 'Doe', 9876543210, 'Post-paid'),
 		  (3, 'Mark', 'Zuckerberg', 1111111111, 'Post-paid');
 
 -- Payment method (contains only information about customer and their method of payment)
 CREATE TABLE Payment_Method(
-	customer_id INT NOT NULL PRIMARY KEY,
+	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
 	phone_number BIGINT NOT NULL UNIQUE,
 	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
@@ -51,12 +51,12 @@ INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amou
 
 -- Data usage (contains only information about customer and the amount of data being used)
 CREATE TABLE Data_Usage(
-	customer_id INT NOT NULL PRIMARY KEY,
+	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
 	phone_number BIGINT NOT NULL UNIQUE,
 	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
 	data_usage DECIMAL(10, 2),
-	call_time TIME, 
+	call_time INTERVAL, -- duration of the call
 	call_cost DECIMAL (10, 2),
 	call_date DATE
 );
@@ -69,8 +69,8 @@ INSERT INTO Data_Usage(customer_id, phone_number, data_usage, call_time, call_co
 		   
 -- Cell phone transactions (contains only information about customer id and their transaction record)
 CREATE TABLE Transactions (
-    t_id INT, -- transaction id
-    customer_id INT NOT NULL PRIMARY KEY,
+    t_id SERIAL PRIMARY KEY, -- transaction id
+    customer_id SERIAL,
     transaction_date DATE,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
 );
@@ -80,4 +80,3 @@ INSERT INTO Transactions (t_id, customer_id, transaction_date)
 VALUES		(1, 1, '2023-10-25'),
 			(2, 2, '2023-10-26'),
 			(3, 3, '2023-10-31');
-		  
