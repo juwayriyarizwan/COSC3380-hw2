@@ -453,8 +453,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     <strong><label for = "phonePlan"><b>Select your Phone Plan:</b></label></strong>
                     <br>
                     <select name = "plans" id = "plans">
-                        <option value="Post-Paid">Post-Paid</option>
-                        <option value="Pre-Paid">Pre-Paid</option>
+                        <option value="Post-paid">Post-paid</option>
+                        <option value="Pre-paid">Pre-paid</option>
                     </select>
                     <br><br>
                 </div>
@@ -791,6 +791,15 @@ app.get('/phoneplans.html', async(req, res) => {
                         text-align: center;
                         letter-spacing: .15em;
                     }
+                    .planReport{
+                        text-align: center;
+                        position: absolute;
+                        color: white;
+                        font-family: monospace;
+                        top: 40%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
                 </style>
             </head>
             <body class="bg-gradient">
@@ -805,8 +814,8 @@ app.get('/phoneplans.html', async(req, res) => {
                 <strong><label for = "phonePlan"><b>Select a Phone Plan:</b></label></strong>
                 <br>
                 <select name = "plans" id = "plans">
-                    <option value="Post-Paid">Post-Paid</option>
-                    <option value="Pre-Paid">Pre-Paid</option>
+                    <option value="Post-paid">Post-paid</option>
+                    <option value="Pre-paid">Pre-paid</option>
                 </select>
                 <br><br>
             </div>
