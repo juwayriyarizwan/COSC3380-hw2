@@ -60,9 +60,11 @@ app.get('/', async (req, res) =>{
                 customerName = `${result.rows[0].customer_fn} ${result.rows[0].customer_ln}`;
                 transactionsHtml = result.rows.map(row => {
                     totalPrice += row.call_cost;
+                    const callTime = row.call_time;
+                    const timeFormat = callTime ? callTime.toISOString().substr(11, 8) : "N/A";
                     // Print transactions on wepage
                     return `
-                     <p>Transaction ID: ${row.t_id},  Date: ${row.transaction_date}, Data Usage: ${row.data_usage} MB, Call Time: ${row.call_time}, Call Cost: $${row.call_cost}</p>`;
+                     <p>Transaction ID: ${row.t_id},  Date: ${row.transaction_date}, Data Usage: ${row.data_usage} MB, Call Time: ${timeFormat}, Call Cost: $${row.call_cost}</p>`;
                 }).join('');
             }
         }
@@ -256,21 +258,49 @@ app.get('/', async (req, res) =>{
 });
 
 // Line for new/old customers to make a transaction
-app.get('/cellphoneservices.html', (req, res) => {
-    const customerId = req.query.customerId;
-    const phoneNumber = req.query.phoneNum;
-
-    if(customerId && phoneNumber)
-    {
-        try{
-
+app.get('/cellphoneservices.html', async (req, res) => {
+    const { firstname, lastname, phonenum, plans, pay } = req.query;
+    let confirmation = '';
+    try{
+        // Check for existing customer by phone number
+        const existingCust = await pool.query(
+            'SELECT customer_id, first_name, last_name, phone_plan, payment_method FROM Customer WHERE phone_number = $1'
+            ,[phonenum]
+        );
+        // If customer exists, check if input matches existing record
+        if(existingCust.rows.length > 0){
+            if(existingCust.rows[0].first_name === firstname &&
+                existingCust.rows[0].last_name === lastname &&
+                existingCust.rows[0].phone_number == phonenum &&
+                existingCust.rows[0].phone_plan === plans &&
+                existingCust.rows[0].payment_method === pay
+            ){
+                confirmation = 'Entered information is already present';
+            }
+            // Update the customer information
+            else{
+                const custId = existingCust.rows[0].customer_id;
+                await pool.query(
+                    'UPDATE Customer SET first_name = $1, last_name = $2, phone_number = $3, phone_plan = $4, payment_method = $5 WHERE customer_id = $6'
+                    ,[firstname, lastname, phonenum, plans, pay, custId]
+                );
+                confirmation = 'Customer information updated';
+            }
         }
-        // Error
-        catch (err) {
-            return res.status(500).send("Error: " + err.message);
+        // Add new customer and assign a customer id
+        else{
+            const result = await pool.query(
+                'INSERT INTO Customer (first_name, last_name, phone_number, phone_plan, payment_method) VALUES ($1, $2, $3, $4, $5) RETURNING customer_id'
+                ,[firstname, lastname, phonenum, plans, pay]
+            );
+            const newCustomerId = result.rows[0].customer_id;
+            confirmation = 'New customer added, Customer ID: ' + newCustomerId;
         }
     }
-    // View customer sign up
+    // Error
+    catch (err) {
+        return res.status(500).send("Error: " + err.message);
+    }
     res.send(`
         <!DOCTYPE html>
         <html lang = "en">
@@ -397,6 +427,7 @@ app.get('/cellphoneservices.html', (req, res) => {
                     <h1>Customer Information</h1> 
                 </div>
                 <br><br>
+                <form action = "/cellphoneservices.html" method = "GET">
                 <!--Enter First and Last name-->
                 <div class="firstname">
                     <strong><label for = "firstName"><b>First name:</b></label></strong>
@@ -414,7 +445,7 @@ app.get('/cellphoneservices.html', (req, res) => {
                 <div class="phonenum">
                     <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
                     <br>
-                    <input type="text" name="phonenum" id="phonenum" maxlength="10" required>
+                    <input type="text" name="phonenum" id="phonenum" maxlength="10">
                     <br><br>
                 </div>
                 <!--Choose phone plan-->
@@ -437,16 +468,26 @@ app.get('/cellphoneservices.html', (req, res) => {
                     </select>
                     <br><br>
                 </div>
+                </form>
                 <div class="buttoninfo">
-                    <a href="transactions.html" class="button">
+                    <button type "submit">
                         View transaction
-                    </a>
+                    </button>
+                </div>
+                <!--View service transaction-->
+                <div class="viewService">
+                    ${confirmation}
+                    <p> First Name: ${firstname}</p>
+                    <p> Last Name: ${lastname}</p>
+                    <p> Phone Number: ${phonenum}</p>
+                    <p> Phone Plan: ${plans}</p>
+                    <p> Payment Method: ${pay}</p>
                 </div>
             </body>
-        
-        </html>      
+
+        </html>
     `);
-})
+});
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
@@ -457,11 +498,16 @@ app.get('/paymentmethod.html', async (req, res) => {
         try{
             const result = await pool.query(`
                 SELECT 
-                    customer_id, first_name, last_name, bill_amount
+                    pm.customer_id, 
+                    c.first_name,
+                    c.last_name, 
+                    pm.bill_amount
                 FROM
-                    Payment_Method
+                    Payment_Method pm
+                JOIN
+                    Customer c ON pm.customer_id = c.customer_id
                 WHERE
-                    payment_method = $1
+                    pm.payment_method = $1
                 `, [selectedMethod]);
             // Display all customers
             if(result.rows.length > 0){
@@ -858,7 +904,6 @@ app.get('/datausage.html', (req, res) => {
         </html>
     `);
 })
-
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
