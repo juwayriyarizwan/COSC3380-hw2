@@ -191,9 +191,11 @@ app.get('/', async (req, res) =>{
                         }
                         .transaction-item{ /*Listed transactions*/
                             position: absolute;
-                            top: 60%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
+                            top: 28em;
+                            left: 0;
+                            width: 100%;
+                            margin: 0;
+                            text-align: center;
                         }
                         .servicelinks{
                             display: flex;
