@@ -68,6 +68,7 @@ app.get('/', async (req, res) =>{
                     // Print transactions on wepage
                     return `
                      <p>Transaction ID: ${row.t_id},  Date: ${row.transaction_date}, Data Usage: ${row.data_usage} MB, Call Time: ${timeFormat}, Call Cost: $${row.call_cost}</p>`;
+                
                 }).join('');
             }
         }
@@ -244,8 +245,9 @@ app.get('/', async (req, res) =>{
                     <div class = "servicelinks">
                         <span><a href="cellphoneservices.html" style="color: white;">Buy Services</a></span>
                         <span><a href="paymentmethod.html" style="color: white;">Payment Methods</a></span>
-                        <a href="phoneplans.html" style="color: white;">Phone Plans</a>
-                        <a href="datausage.html" style="color: white;">Data Usage</a>
+                        <span><a href="phoneplans.html" style="color: white;">Phone Plans</a></span>
+                        <span><a href="datausage.html" style="color: white;">Data Usage</a></span>
+                        <span><a href="deleteTransaction.html" style="color: white;">Refund Services</a></span>
                     </div>
                     <div class="transactions">
                         <h3>Transactions:</h3>
@@ -261,7 +263,8 @@ app.get('/', async (req, res) =>{
 });
 
 // Add new customers
-async function insertCustomer(readData){
+async function insertCustomer(readData, res){
+    console.log("inserting...");
     const userInput = await pool.connect();
     try{
         await userInput.query('BEGIN');
@@ -275,12 +278,11 @@ async function insertCustomer(readData){
             readData.firstname,
             readData.lastname,
             readData.pay,
-            readData.plans
+            readData.plans,
         ];
 
         const result = await userInput.query(insertInfo, customerData);
         const customerId = result.rows[0].customer_id;
-        
         // Update phone plan table
         const insertPhone = `
             INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
@@ -308,33 +310,37 @@ async function insertCustomer(readData){
         await userInput.query(insertPayment, paymentData);
         // Update data usage table
         const insertUsage = `
-            INSERT INTO Data_Usage (customer_id, phone_number, data_usage, call_time, call_cost, call_date)
-            VALUES ($1, $2, $3, $4, $5, $6);
-            `;
+            INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost)
+            VALUES ($1, $2, $3, $4, $5);
+        `;
         const usageData = [
             customerId,
             readData.phonenum,
-            readData.data_usage,
-            readData.call_time,
-            readData.call_cost,
-            readData.call_date
+            readData.callduration,
+            readData.calldate,
+            readData.call_cost
         ];
-        await userInput.query(insertUsage, usageData);
-
+        await userInput.query(insertUsage, usageData);        
+        // Update transaction table
+        const insertTransaction = `
+            INSERT INTO Transactions (customer_id, transaction_date)
+            VALUES ($1, CURRENT_DATE)
+            RETURNING t_id;
+            `;
+        const transactionData = [
+            customerId,
+        ];
+        const transactionResult = await userInput.query(insertTransaction, transactionData);
+        const transactionId = transactionResult.rows[0].t_id;
         await userInput.query('COMMIT');
-        return customerId;
-    }
-    catch (error) {
+        return {customerId, transactionId};
+    }catch (error) {
         await pool.query('ROLLBACK');
-        return res.status(500).send("Transaction error: " + error.message);
+        res.status(500).send("Transaction error: " + error.message); 
         throw error;
-    }finally{
+    } finally {
         userInput.release();
     }
-    // Error
-    //catch (err) {
-    //    return res.status(500).send("Error: " + err.message);
-    //}
 }
 
 // Link to buy services
@@ -421,7 +427,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Button for customer info page*/
                         .buttoninfo{
-                            top: 60%;
+                            top: 70%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -454,7 +460,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         .payplan{
                             position: absolute;
-                            top: 50%;
+                            top: 45%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -468,6 +474,32 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
+                        .tinyheader{
+                            position: absolute;
+                            top: 15%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .calldate{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .callduration{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 55%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -476,6 +508,9 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         <h1>Customer Information</h1> 
                     </div>
                     <br><br>
+                    <div class = "tinyheader">
+                    <p>Make a transaction</p>
+                    </div>
                     <form action = "/cellphoneservices.html" method = "POST">
                     <!--Enter First and Last name-->
                     <div class="firstname">
@@ -517,6 +552,18 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         </select>
                         <br><br>
                     </div>
+                    <!--Enter call date-->
+                    <div class = "calldate">
+                        <strong><label for = "calldate"><b>Enter your Call Date:</b></label></strong>
+                        <br>
+                        <input type="date" name="calldate" placeholder="DD-MM-YYYY" value="" min="1997-01-01" max="2030-12-31">
+                    </div>
+                    <!--Enter call duration-->
+                    <div class="callduration">
+                        <strong><label for="callduration"><b>Enter Call Duration:</b></label></strong>
+                        <br>
+                        <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
+                    </div>
                     <div class="buttoninfo">
                         <button type = "submit">
                             View transaction
@@ -530,11 +577,13 @@ app.get('/cellphoneservices.html', async (req, res) => {
 
 // Handle user input
 app.post('/cellphoneservices.html', async (req, res) => {
-    const {firstname, lastname, phonenum, plans, pay} = req.body;
-    const readData = {firstname, lastname, phonenum, plans, pay};
-
+    const {firstname, lastname, phonenum, plans, pay, calldate, callduration} = req.body;
+    const readData = {firstname, lastname, phonenum, plans, pay, calldate, callduration};
     try{
-        const newCustomer = await insertCustomer(readData);
+        const result = await insertCustomer(readData, res);
+        const customerId = result.customerId;
+        const transactionId = result.transactionId;
+        // Print to webpage
         res.send(`
             <!DOCTYPE html>
             <html lang = "en">
@@ -649,7 +698,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         }
                         .payplan{
                             position: absolute;
-                            top: 50%;
+                            top: 45%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -663,6 +712,32 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
+                        .tinyheader{
+                            position: absolute;
+                            top: 15%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .calldate{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .callduration{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 55%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -671,6 +746,10 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <h1>Customer Information</h1> 
                     </div>
                     <br><br>
+                    <div class = "tinyheader">
+                    <p>Make a transaction</p>
+                    </div>
+                    <form action = "/cellphoneservices.html" method = "POST">
                     <!--Enter First and Last name-->
                     <div class="firstname">
                         <strong><label for = "firstName"><b>First name:</b></label></strong>
@@ -711,32 +790,226 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         </select>
                         <br><br>
                     </div>
+                    <!--Enter call date-->
+                    <div class = "calldate">
+                        <strong><label for = "calldate"><b>Enter your Call Date:</b></label></strong>
+                        <br>
+                        <input type="date" name="calldate" placeholder="DD-MM-YYYY" value="" min="1997-01-01" max="2030-12-31">
+                    </div>
+                    <!--Enter call duration-->
+                    <div class="callduration">
+                        <strong><label for="callduration"><b>Enter Call Duration:</b></label></strong>
+                        <br>
+                        <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
+                    </div>
                     <div class="buttoninfo">
                         <button type = "submit">
                             View transaction
                         </button>
                     </div>
-                    <form action = "cellphoneservices.html" method = "POST">
+                    </form>
                     <div class = "viewnewCust">
                         <h2>Customer Information</h2>
-                        <p>Customer ID: ${newCustomer}</p>
+                        <p>Customer ID: ${customerId}</p>
+                        <p>Transaction ID: ${transactionId}</p>
                         <p>First Name: ${firstname}</p>
                         <p>Last Name: ${lastname}</p>
                         <p>Phone Plan: ${plans}</p>
                         <p>Payment Method: ${pay}</p>
+                        <p>Call Date: ${calldate}</p>
+                        <p>Call Duration: ${callduration}</p>
+                        <p>Call Cost: </p>
+                        <p>Data Usage: MB</p>
+                        <p>Total Bill Amount: </p>
                     </div>
-                </form>
                 </body>
             </html>
         `);
-    }
-    // Error
+    }// Error
     catch (err) {
         return res.status(500).send("Error: " + err.message);
     }
 });
 
 // Link to delete a transaction
+app.get('/deleteTransaction.html', async (req, res) => {
+    res.send(`
+            <!DOCTYPE html>
+        <html lang = "en">
+            <head>
+                <meta charset="UTF-8"> 
+                <link rel="stylesheet" type="text/css" href="style.css">
+                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                <title>Cell Phone Company </title> 
+                <style>
+                    body {
+                        padding-top: 5em;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    /*Page Gradient*/
+                    body.bg-gradient{
+                        height: 100vh;
+                        width: 100%; /* Add this line to make the gradient fill the entire width */
+                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                    }
+                    /*typewriter effect for all headers*/
+                    h1{
+                        color: #ffffff; /* Set text color to white */
+                        font-family: monospace;
+                        overflow: hidden;
+                        border-right: .15em solid rgb(255, 255, 255);
+                        white-space: nowrap;
+                        letter-spacing: .15em;
+                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                        height: 1.2em;
+                        text-align: center;
+                    }
+                    /* The typing effect */
+                    @keyframes typing {
+                        from { width: 0 }
+                        to { width: 100% }
+                    }
+                    /* The typewriter cursor effect */
+                    @keyframes blink-caret {
+                        from, to { border-color: transparent }
+                        50% { border-color: rgb(255, 255, 255); }
+                    }
+                    p {
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    }
+                    /*CustomerID, first name*/
+                    .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                    }
+                    /* Container for positioning */
+                    .content-container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
+                    }
+                    /*Button to view transactions and customer info*/
+                    .button, .buttoninfo{
+                        color: white;
+                        background-color: rgb(78, 131, 177);
+                        position: absolute;
+                        padding: 10px 20px; 
+                        top: 40%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        cursor: pointer;
+                        font-family: monospace;
+                        text-align: center;
+                        text-decoration: none;
+                        border: 1px solid white;
+                        transition: background-color 0.3s;
+                        border-radius: 12px;
+                    }
+                    /*Button for customer info page*/
+                    .buttoninfo{
+                        top: 60%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .button:hover, .buttoninfo:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    p{ /*Please enter your CustomerID*/
+                        position: absolute;
+                        top: 20%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .customerId{ /*User input*/
+                        font-family: monospace;
+                        position: absolute;
+                        top: 30%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .phonenum{
+                        font-family: monospace;
+                        position: absolute;
+                        top: 35%;
+                        left: 50%;      
+                        transform: translate(-50%, -50%);
+                    }
+                </style>
+            </head>
+            <body class="bg-gradient">
+                <div class="intro">
+                    <h1>Refund Services</h1> 
+                </div>
+                <br><br>
+                <p>Please enter your CustomerID.</p>
+                <!--Enter CustomerID-->
+            <div class="customerId">
+                    <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
+                    <br>
+                    <input type="text" name="customerId" id="customerid" maxlength="2">
+                    <h3>OR</h3>
+                    <br><br>
+                </div>
+            <!--Phone number-->
+            <div class="phonenum">
+                    <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+                    <br>
+                    <input type="text" name="phoneNum" id="phonenum" maxlength="10">
+                    <br><br>
+                </div>
+                <!--Click Delete Transactions-->
+                <div class="button">
+                    <button type = "submit"> Delete Transaction</button>
+                </div>
+                <!--Confirmation button-->
+                <div id = "confirmation" style="display: none;">
+                    <p> Are you sure you want to delete this transaction?</p>
+                    <button id ="confirmYes">YES</button>
+                    <button id ="confirmNo">NO</button>
+                </div>
+                <!--Handle interaction-->
+                <!--Link JS file-->
+                <script src="hw2.js">
+                <!--Handle interaction-->
+                document.getElementById("deleteTransactionButton").addEventListener("click", () => {
+                    
+                    document.getElementById("confirmationModal").style.display = "block";
+                  });
+                  document.getElementById("cancelDeleteButton").addEventListener("click", () => {
+                    document.getElementById("confirmationModal").style.display = "none";
+                  });
+              
+                  document.getElementById("confirmDeleteButton").addEventListener("click", async () => {
+                    const customerId = 123; 
+                    try {
+                        const response = await fetch('http://localhost:3000/deleteTransaction/' + customerId, {
+                            method: 'POST',
+                          });
+              
+                      if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById("deletedInformation").innerHTML = JSON.stringify(data.deletedData);
+                        document.getElementById("deletedInformation").style.display = "block";
+                        document.getElementById("confirmationModal").style.display = "none";
+                      } else {
+                        console.error("Deletion failed");
+                      }
+                    } catch (error) {
+                      console.error("AJAX request failed: " + error.message);
+                    }
+                  });
+                </script>
+            </body>
+        </html>
+    `);
+})
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
@@ -1085,6 +1358,8 @@ app.get('/phoneplans.html', async(req, res) => {
 app.get('/datausage.html', async (req, res) => {
     const customerId = req.query.customerId;
     const phoneNumber = req.query.phoneNum;
+    let totalPrice = 0;
+    let customerName = "";
     let dataUsagehtml = "";
     // If customer id/phhone number is present
     if(customerId || phoneNumber)
@@ -1103,6 +1378,7 @@ app.get('/datausage.html', async (req, res) => {
                 pp.phone_plan,
                 du.data_usage,
                 du.call_time,
+                du.call_date,
                 du.call_cost
               FROM
                 Transactions t
@@ -1137,7 +1413,7 @@ app.get('/datausage.html', async (req, res) => {
                     const timeFormat = callTime ? callTime.toISOString().substr(11, 8) : "N/A";
                     // Print transactions on wepage
                     return `
-                     <p>Name: ${customerName}, Date: ${row.transaction_date}, Data Usage: ${row.data_usage} MB, Call Time: ${timeFormat}, Call Cost: $${row.call_cost}</p>`;
+                     <p>Name: ${customerName}, Transaction Date: ${row.transaction_date}, Data Usage: ${row.data_usage} MB, Call Time: ${timeFormat}, Call Date: ${row.call_date}, Call Cost: $${row.call_cost}</p>`;
                 }).join('');
             }
         }
@@ -1270,12 +1546,12 @@ app.get('/datausage.html', async (req, res) => {
                             left: 50%;      
                             transform: translate(-50%, -50%);
                         }
-                    h3{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                    }
+                        h3{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
                 </style>
             </head>
             <body class="bg-gradient">
