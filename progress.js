@@ -296,13 +296,13 @@ function calculateCallCost(callDuration, dataRate, perMB){
 }
 
 // Add new customers
-async function insertCustomer(readData, res, callduration){
+async function insertCustomer(readData, res, callduration, cardnumber){
     console.log("inserting...");
     const userInput = await pool.connect();
     try{
         await userInput.query('BEGIN');
         // Calculate cost of call
-        const callCost = calculateCallCost(callduration);
+        const callCost = calculateCallCost(callduration, dataRate);
         // Calculate data usage
         const dataUsage = calculateDataUsage(callduration, dataRate);
         const insertInfo = `
@@ -373,7 +373,6 @@ async function insertCustomer(readData, res, callduration){
             customerId
         ];
         await userInput.query(updateBill, BillAmount);
-        // Update the customer table again
         // Update transaction table
         const insertTransaction = `
             INSERT INTO Transactions (customer_id, transaction_date)
@@ -386,7 +385,7 @@ async function insertCustomer(readData, res, callduration){
         const transactionResult = await userInput.query(insertTransaction, transactionData);
         const transactionId = transactionResult.rows[0].t_id;
         await userInput.query('COMMIT');
-        return {customerId, transactionId, BillAmount};
+        return {customerId, transactionId, BillAmount, dataUsage};
     }catch (error) {
         await pool.query('ROLLBACK');
         res.status(500).send("Transaction error: " + error.message); 
@@ -553,6 +552,16 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
+                        .cardnumber{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -617,6 +626,11 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         <br>
                         <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
                     </div>
+                    <div class="cardnumber">
+                        <strong><label for="cardnumber"><b>Enter Credit Card Number:</b></label></strong>
+                        <br>
+                        <input type="text" name="cardnumber" value="" maxlength="15">
+                    </div>
                     <div class="buttoninfo">
                         <button type = "submit">
                             View transaction
@@ -630,14 +644,14 @@ app.get('/cellphoneservices.html', async (req, res) => {
 
 // Handle user input
 app.post('/cellphoneservices.html', async (req, res) => {
-    const {firstname, lastname, phonenum, plans, pay, calldate, callduration} = req.body;
+    const {firstname, lastname, phonenum, plans, pay, calldate, callduration, cardnumber} = req.body;
     const readData = {firstname, lastname, phonenum, plans, pay, calldate, callduration};
     try{
-        const result = await insertCustomer(readData, res, callduration);
+        const result = await insertCustomer(readData, res, callduration, cardnumber);
         const customerId = result.customerId;
         const transactionId = result.transactionId;
         // Calculate cost of call
-        const callCost = calculateCallCost(callduration);
+        const callCost = calculateCallCost(callduration, dataRate);
         // Update bill amount
         const updateBillAmount = result.BillAmount;
         const dataUsage = result.dataUsage;
@@ -766,7 +780,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 75%;
+                            top: 85%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -793,6 +807,16 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             letter-spacing: .15em;
                             position: absolute;
                             top: 55%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .cardnumber{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 60%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -860,6 +884,11 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <br>
                         <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
                     </div>
+                    <div class="cardnumber">
+                        <strong><label for="cardnumber"><b>Enter Credit Card Number:</b></label></strong>
+                        <br>
+                        <input type="text" name="cardnumber" value="" maxlength="15">
+                    </div>
                     <div class="buttoninfo">
                         <button type = "submit">
                             View transaction
@@ -877,7 +906,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <p>Call Date: ${calldate}</p>
                         <p>Call Duration: ${callduration}</p>
                         <p>Call Cost: $${callCost.toFixed(2)}</p>
-                        <p>Data Usage:${dataUsage} MB</p>
+                        <p>Data Usage:${dataUsage.toFixed(2)} MB</p>
                         <p>Total Bill Amount: $${updateBillAmount}</p>
                     </div>
                 </body>
@@ -888,186 +917,6 @@ app.post('/cellphoneservices.html', async (req, res) => {
         return res.status(500).send("Error: " + err.message);
     }
 });
-
-// Link to delete a transaction
-app.get('/deleteTransaction.html', async (req, res) => {
-    res.send(`
-            <!DOCTYPE html>
-        <html lang = "en">
-            <head>
-                <meta charset="UTF-8"> 
-                <link rel="stylesheet" type="text/css" href="style.css">
-                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
-                <title>Cell Phone Company </title> 
-                <style>
-                    body {
-                        padding-top: 5em;
-                        display: flex;
-                        justify-content: center;
-                    }
-                    /*Page Gradient*/
-                    body.bg-gradient{
-                        height: 100vh;
-                        width: 100%; /* Add this line to make the gradient fill the entire width */
-                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
-                    }
-                    /*typewriter effect for all headers*/
-                    h1{
-                        color: #ffffff; /* Set text color to white */
-                        font-family: monospace;
-                        overflow: hidden;
-                        border-right: .15em solid rgb(255, 255, 255);
-                        white-space: nowrap;
-                        letter-spacing: .15em;
-                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
-                        height: 1.2em;
-                        text-align: center;
-                    }
-                    /* The typing effect */
-                    @keyframes typing {
-                        from { width: 0 }
-                        to { width: 100% }
-                    }
-                    /* The typewriter cursor effect */
-                    @keyframes blink-caret {
-                        from, to { border-color: transparent }
-                        50% { border-color: rgb(255, 255, 255); }
-                    }
-                    p {
-                        text-align: center;
-                        color: white;
-                        font-family: monospace;
-                    }
-                    /*CustomerID, first name*/
-                    .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                    }
-                    /* Container for positioning */
-                    .content-container {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                    }
-                    /*Button to view transactions and customer info*/
-                    .button, .buttoninfo{
-                        color: white;
-                        background-color: rgb(78, 131, 177);
-                        position: absolute;
-                        padding: 10px 20px; 
-                        top: 40%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        cursor: pointer;
-                        font-family: monospace;
-                        text-align: center;
-                        text-decoration: none;
-                        border: 1px solid white;
-                        transition: background-color 0.3s;
-                        border-radius: 12px;
-                    }
-                    /*Button for customer info page*/
-                    .buttoninfo{
-                        top: 60%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .button:hover, .buttoninfo:hover{
-                        background-color: rgb(66, 112, 153);
-                    }
-                    p{ /*Please enter your CustomerID*/
-                        position: absolute;
-                        top: 20%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .customerId{ /*User input*/
-                        font-family: monospace;
-                        position: absolute;
-                        top: 30%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .phonenum{
-                        font-family: monospace;
-                        position: absolute;
-                        top: 35%;
-                        left: 50%;      
-                        transform: translate(-50%, -50%);
-                    }
-                </style>
-            </head>
-            <body class="bg-gradient">
-                <div class="intro">
-                    <h1>Refund Services</h1> 
-                </div>
-                <br><br>
-                <p>Please enter your CustomerID.</p>
-                <!--Enter CustomerID-->
-            <div class="customerId">
-                    <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
-                    <br>
-                    <input type="text" name="customerId" id="customerid" maxlength="2">
-                    <h3>OR</h3>
-                    <br><br>
-                </div>
-            <!--Phone number-->
-            <div class="phonenum">
-                    <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
-                    <br>
-                    <input type="text" name="phoneNum" id="phonenum" maxlength="10">
-                    <br><br>
-                </div>
-                <!--Click Delete Transactions-->
-                <div class="button">
-                    <button type = "submit"> Delete Transaction</button>
-                </div>
-                <!--Confirmation button-->
-                <div id = "confirmation" style="display: none;">
-                    <p> Are you sure you want to delete this transaction?</p>
-                    <button id ="confirmYes">YES</button>
-                    <button id ="confirmNo">NO</button>
-                </div>
-                <!--Handle interaction-->
-                <!--Link JS file-->
-                <script src="hw2.js">
-                <!--Handle interaction-->
-                document.getElementById("deleteTransactionButton").addEventListener("click", () => {
-                    
-                    document.getElementById("confirmationModal").style.display = "block";
-                  });
-                  document.getElementById("cancelDeleteButton").addEventListener("click", () => {
-                    document.getElementById("confirmationModal").style.display = "none";
-                  });
-              
-                  document.getElementById("confirmDeleteButton").addEventListener("click", async () => {
-                    const customerId = 123; 
-                    try {
-                        const response = await fetch('http://localhost:3000/deleteTransaction/' + customerId, {
-                            method: 'POST',
-                          });
-              
-                      if (response.ok) {
-                        const data = await response.json();
-                        document.getElementById("deletedInformation").innerHTML = JSON.stringify(data.deletedData);
-                        document.getElementById("deletedInformation").style.display = "block";
-                        document.getElementById("confirmationModal").style.display = "none";
-                      } else {
-                        console.error("Deletion failed");
-                      }
-                    } catch (error) {
-                      console.error("AJAX request failed: " + error.message);
-                    }
-                  });
-                </script>
-            </body>
-        </html>
-    `);
-})
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
