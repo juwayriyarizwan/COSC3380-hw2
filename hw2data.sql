@@ -80,3 +80,17 @@ INSERT INTO Transactions (t_id, customer_id, transaction_date)
 VALUES		(1, 1, '2023-10-25'),
 			(2, 2, '2023-10-26'),
 			(3, 3, '2023-10-31');
+
+CREATE TABLE Bank_Account(
+	credit_card VARCHAR(15) PRIMARY KEY,
+	balance DECIMAL(10, 2)
+);
+
+-- Insert money in bank
+INSERT INTO Bank_Account(credit_card, balance)
+VALUES ('123456789012345', 1000.00),
+	   ('234567890123456', 500.00),
+	   ('345678901234567', 750.00),
+	   ('456789012345678', 1200.50),
+	   ('567890123456789', 230.00);
+
