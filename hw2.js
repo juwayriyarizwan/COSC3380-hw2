@@ -147,7 +147,7 @@ app.get('/', async (req, res) =>{
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 42%;
+                            top: 40%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
@@ -191,11 +191,9 @@ app.get('/', async (req, res) =>{
                         }
                         .transaction-item{ /*Listed transactions*/
                             position: absolute;
-                            top: 28em;
-                            left: 0;
-                            width: 100%;
-                            margin: 0;
-                            text-align: center;
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
                         }
                         .servicelinks{
                             display: flex;
@@ -203,7 +201,7 @@ app.get('/', async (req, res) =>{
                             align-items: center;
                             font-family: monospace;
                             position: absolute;
-                            top: 47%;
+                            top: 45%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -227,13 +225,12 @@ app.get('/', async (req, res) =>{
                     <div class="customerId">
                             <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
                             <br>
-                            <input type="text" name="customerId" id="customerid" maxlength="2">
+                            <input type="text" name="customerId" id="customerid" maxlength="3">
                             <h3>OR</h3>
                             <br><br>
                         </div>
                     <!--Phone number-->
                     <div class="phonenum">
-                            <br><br>
                             <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
                             <br>
                             <input type="text" name="phoneNum" id="phonenum" maxlength="10">
@@ -266,6 +263,7 @@ app.get('/', async (req, res) =>{
 
 // Mbps
 const dataRate = 3.0;
+const perMB = 0.05;
 // Parse call duration
 function parseDuration(duration){
     const time = duration.split(":");
@@ -298,13 +296,12 @@ function calculateCallCost(callDuration, dataRate, perMB){
 }
 
 // Add new customers
-async function insertCustomer(readData, res, callduration, cardnumber){
-    console.log("inserting...");
+async function insertCustomer(readData, res, callduration, creditcard){
     const userInput = await pool.connect();
     try{
         await userInput.query('BEGIN');
         // Calculate cost of call
-        const callCost = calculateCallCost(callduration, dataRate);
+        const callCost = calculateCallCost(callduration, dataRate, perMB);
         // Calculate data usage
         const dataUsage = calculateDataUsage(callduration, dataRate);
         const insertInfo = `
@@ -364,7 +361,7 @@ async function insertCustomer(readData, res, callduration, cardnumber){
             dataUsage,
         ];
         await userInput.query(insertUsage, usageData);
-        // Add the cost onto the total amount
+        // Add the cost onto the total amount on payment method table
         const updateBill = `
             UPDATE Payment_Method
             SET bill_amount = bill_amount + $1
@@ -375,6 +372,17 @@ async function insertCustomer(readData, res, callduration, cardnumber){
             customerId
         ];
         await userInput.query(updateBill, BillAmount);
+        // Add the cost onto the total amount on customer table
+        const updateCustBill = `
+            UPDATE customer
+            SET bill_amount = bill_amount + $1
+            WHERE customer_id = $2;
+        `;
+        const customerBillAmount = [
+            callCost,
+            customerId
+        ];
+        await userInput.query(updateCustBill, customerBillAmount);
         // Update transaction table
         const insertTransaction = `
             INSERT INTO Transactions (customer_id, transaction_date)
@@ -416,7 +424,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Page Gradient*/
                         body.bg-gradient{
-                            height: 100vh;
+                            height: 109vh;
                             width: 100%; /* Add this line to make the gradient fill the entire width */
                             background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
                         }
@@ -554,7 +562,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
-                        .cardnumber{
+                        .creditcard{
                             color: white;
                             font-family: monospace;
                             text-align: center;
@@ -573,9 +581,6 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <br><br>
                     <div class = "tinyheader">
-                    <br><br>
-                    <br><br>
-                    <br><br>
                     <p>Make a transaction</p>
                     </div>
                     <form action = "/cellphoneservices.html" method = "POST">
@@ -631,10 +636,10 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         <br>
                         <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
                     </div>
-                    <div class="cardnumber">
-                        <strong><label for="cardnumber"><b>Enter Credit Card Number:</b></label></strong>
+                    <div class="creditcard">
+                        <strong><label for="creditcard"><b>Enter Credit Card Number:</b></label></strong>
                         <br>
-                        <input type="text" name="cardnumber" value="" maxlength="15">
+                        <input type="text" name="creditcard" value="" maxlength="16" required>
                     </div>
                     <div class="buttoninfo">
                         <button type = "submit">
@@ -649,17 +654,65 @@ app.get('/cellphoneservices.html', async (req, res) => {
 
 // Handle user input
 app.post('/cellphoneservices.html', async (req, res) => {
-    const {firstname, lastname, phonenum, plans, pay, calldate, callduration, cardnumber} = req.body;
-    const readData = {firstname, lastname, phonenum, plans, pay, calldate, callduration};
+    const {firstname, lastname, phonenum, plans, pay, calldate, callduration, creditcard} = req.body;
+    const readData = {firstname, lastname, phonenum, plans, pay, calldate, callduration, creditcard};
     try{
-        const result = await insertCustomer(readData, res, callduration, cardnumber);
+        // Verify the credit card number
+        const verifyCard = `
+            SELECT balance FROM bank_account WHERE credit_card = $1;
+        `;
+
+        const verifyCardResult = await pool.query(verifyCard, [creditcard]);
+
+        // If number does not match table
+        if(verifyCardResult.rows.length === 0){
+            res.status(400).send("Invalid credit card number. Please enter a valid number.");
+            return;
+        }
+        // Get access to balance
+        const accountBalance = verifyCardResult.rows[0].balance;
+
+        const result = await insertCustomer(readData, res, callduration, creditcard);
         const customerId = result.customerId;
         const transactionId = result.transactionId;
         // Calculate cost of call
-        const callCost = calculateCallCost(callduration, dataRate);
+        const callCost = calculateCallCost(callduration, dataRate, perMB);
         // Update bill amount
         const updateBillAmount = result.BillAmount;
         const dataUsage = result.dataUsage;
+
+        // Print balance to webpage
+        let printBalance; 
+
+        // Check if account has enough funds
+        if(accountBalance < callCost){
+            res.status(400).send("Insufficient funds.");
+            return;
+        }
+        // Subtract bill amount from balance
+        const deductAmount = `
+            UPDATE bank_account
+            SET balance = balance - $1
+            WHERE credit_card = $2;
+        `;
+        const newBalance = await pool.query(deductAmount, [callCost, creditcard]);
+
+        // Update bank_account table
+        if(newBalance.rows.length > 0){
+            const updatedBalance = newBalance.rows[0].accountBalance;
+            const getnewBalance = `
+                SELECT balance FROM bank_account WHERE credit_card = $1;
+            `;
+            const finalBalance = await pool.query(getnewBalance, [creditcard]);
+            // Print the new balance 
+            if(finalBalance.rows.length > 0){
+                printBalance = finalBalance.rows[0].accountBalance;
+            }
+            else{
+                res.status(500).send("Failed to fetch the updated balance from the bank_account table.");
+                return;
+            }
+        }
         // Print to webpage
         res.send(`
             <!DOCTYPE html>
@@ -815,7 +868,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
-                        .cardnumber{
+                        .creditcard{
                             color: white;
                             font-family: monospace;
                             text-align: center;
@@ -902,16 +955,17 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <br>
                         <input type="text" name="callduration" placeholder="HH:MM:SS" value="">
                     </div>
-                    <div class="cardnumber">
-                        <strong><label for="cardnumber"><b>Enter Credit Card Number:</b></label></strong>
+                    <div class="creditcard">
+                        <strong><label for="creditcard"><b>Enter Credit Card Number:</b></label></strong>
                         <br>
-                        <input type="text" name="cardnumber" value="" maxlength="15">
+                        <input type="text" name="creditcard" value="" maxlength="16" required>
                     </div>
                     <div class="buttoninfo">
                         <button type = "submit">
                             View transaction
                         </button>
                     </div>
+                    </form>
                     <div class = "viewnewCust">
                         <h2>Customer Information</h2>
                         <p>Customer ID: ${customerId}</p>
@@ -923,9 +977,8 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <p>Call Date: ${calldate}</p>
                         <p>Call Duration: ${callduration}</p>
                         <p>Call Cost: $${callCost.toFixed(2)}</p>
-                        <p>Data Usage:${dataUsage.toFixed(2)} MB</p>
+                        <p>Data Usage: ${dataUsage.toFixed(2)} MB</p>
                         <p>Total Bill Amount: $${updateBillAmount}</p>
-                        </form>
                     </div>
                 </body>
             </html>
@@ -1035,7 +1088,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                     }
                     /*Button for payment method page*/
                     .reportbutton{
-                        top: 33%;
+                        top: 30%;
                         left: 50%;
                         transform: translate(-50%, -50%);
                     }
@@ -1101,9 +1154,8 @@ app.get('/paymentmethod.html', async (req, res) => {
             <!--Choose payment method-->
             <form action="/paymentmethod.html" method = "GET">
              <div class="payplanreport">
-                <strong><label for = "paymethodreport"><b><br><br><br><br><br><br>Select a Payment Method:</b></label></strong>
+                <strong><label for = "paymethodreport"><b>Select a Payment Method:</b></label></strong>
                 <br>
-                <br><br>
                 <select name = "pay" id = "pay">
                     <option value="Automatic">Automatic</option>
                     <option value="Manual">Manual</option>
@@ -1217,7 +1269,7 @@ app.get('/phoneplans.html', async(req, res) => {
                     }
                     /*Button for phone plan page*/
                     .reportbutton{
-                        top: 32%;
+                        top: 30%;
                         left: 50%;
                         transform: translate(-50%, -50%);
                     }
@@ -1259,8 +1311,7 @@ app.get('/phoneplans.html', async(req, res) => {
             <!--Choose phone plan-->
             <form action="/phoneplans.html" method = "GET">
             <div class="phoneplanreport">
-                <strong><label for = "phonePlan"><b><br><br><br><br><br><br>Select a Phone Plan:</b></label></strong>
-                <br>
+                <strong><label for = "phonePlan"><b>Select a Phone Plan:</b></label></strong>
                 <br>
                 <select name = "plans" id = "plans">
                     <option value="Post-paid">Post-paid</option>
@@ -1418,7 +1469,7 @@ app.get('/datausage.html', async (req, res) => {
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 41.5%;
+                            top: 40%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
@@ -1462,11 +1513,9 @@ app.get('/datausage.html', async (req, res) => {
                         }
                         .data-item{ /*Listed data usage*/
                             position: absolute;
-                            top: 28em;
-                            left: 0;
-                            width: 100%;
-                            margin: 0;
-                            text-align: center;
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             font-family: monospace;
@@ -1493,17 +1542,15 @@ app.get('/datausage.html', async (req, res) => {
                     <!--Enter CustomerID-->
                 <form action = "/datausage.html" method = "GET">
                     <div class="customerId">
-                            <br>
                             <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
                             <br>
-                            <input type="text" name="customerId" id="customerid" maxlength="2">
+                            <input type="text" name="customerId" id="customerid" maxlength="3">
                             <h3>OR</h3>
                             <br><br>
-                            <br>
                         </div>
                     <!--Phone number-->
                     <div class="phonenum">
-                            <strong><label for = "phoneNum"><b><br>Phone Number:</b></label></strong>
+                            <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
                             <br>
                             <input type="text" name="phoneNum" id="phonenum" maxlength="10">
                             <br><br>
