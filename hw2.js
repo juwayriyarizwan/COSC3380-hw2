@@ -147,7 +147,7 @@ app.get('/', async (req, res) =>{
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 40%;
+                            top: 42%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
@@ -203,7 +203,7 @@ app.get('/', async (req, res) =>{
                             align-items: center;
                             font-family: monospace;
                             position: absolute;
-                            top: 45%;
+                            top: 47%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -233,6 +233,7 @@ app.get('/', async (req, res) =>{
                         </div>
                     <!--Phone number-->
                     <div class="phonenum">
+                            <br><br>
                             <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
                             <br>
                             <input type="text" name="phoneNum" id="phonenum" maxlength="10">
@@ -429,7 +430,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Button for customer info page*/
                         .buttoninfo{
-                            top: 70%;
+                            top: 68%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -438,31 +439,31 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         .firstname{
                             position: absolute;
-                            top: 20%;
+                            top: 27%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .lastname{
                             position: absolute;
-                            top: 25%;
+                            top: 32%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             position: absolute;
-                            top: 30%;
+                            top: 37%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phoneplan{
                             position: absolute;
-                            top: 40%;
+                            top: 45%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .payplan{
                             position: absolute;
-                            top: 45%;
+                            top: 50%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -488,7 +489,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 50%;
+                            top: 55%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -498,7 +499,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 55%;
+                            top: 62%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -511,6 +512,9 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <br><br>
                     <div class = "tinyheader">
+                    <br><br>
+                    <br><br>
+                    <br><br>
                     <p>Make a transaction</p>
                     </div>
                     <form action = "/cellphoneservices.html" method = "POST">
@@ -903,7 +907,7 @@ app.get('/deleteTransaction.html', async (req, res) => {
                         background-color: rgb(78, 131, 177);
                         position: absolute;
                         padding: 10px 20px; 
-                        top: 40%;
+                        top: 43%;
                         left: 50%;
                         transform: translate(-50%, -50%);
                         cursor: pointer;
@@ -961,6 +965,7 @@ app.get('/deleteTransaction.html', async (req, res) => {
                 </div>
             <!--Phone number-->
             <div class="phonenum">
+                    <br><br>
                     <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
                     <br>
                     <input type="text" name="phoneNum" id="phonenum" maxlength="10">
@@ -1112,7 +1117,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                     }
                     /*Button for payment method page*/
                     .reportbutton{
-                        top: 30%;
+                        top: 33%;
                         left: 50%;
                         transform: translate(-50%, -50%);
                     }
@@ -1178,8 +1183,9 @@ app.get('/paymentmethod.html', async (req, res) => {
             <!--Choose payment method-->
             <form action="/paymentmethod.html" method = "GET">
              <div class="payplanreport">
-                <strong><label for = "paymethodreport"><b>Select a Payment Method:</b></label></strong>
+                <strong><label for = "paymethodreport"><b><br><br><br><br><br><br>Select a Payment Method:</b></label></strong>
                 <br>
+                <br><br>
                 <select name = "pay" id = "pay">
                     <option value="Automatic">Automatic</option>
                     <option value="Manual">Manual</option>
@@ -1293,7 +1299,7 @@ app.get('/phoneplans.html', async(req, res) => {
                     }
                     /*Button for phone plan page*/
                     .reportbutton{
-                        top: 30%;
+                        top: 32%;
                         left: 50%;
                         transform: translate(-50%, -50%);
                     }
@@ -1335,7 +1341,8 @@ app.get('/phoneplans.html', async(req, res) => {
             <!--Choose phone plan-->
             <form action="/phoneplans.html" method = "GET">
             <div class="phoneplanreport">
-                <strong><label for = "phonePlan"><b>Select a Phone Plan:</b></label></strong>
+                <strong><label for = "phonePlan"><b><br><br><br><br><br><br>Select a Phone Plan:</b></label></strong>
+                <br>
                 <br>
                 <select name = "plans" id = "plans">
                     <option value="Post-paid">Post-paid</option>
@@ -1493,7 +1500,7 @@ app.get('/datausage.html', async (req, res) => {
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 40%;
+                            top: 41.5%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
@@ -1537,9 +1544,11 @@ app.get('/datausage.html', async (req, res) => {
                         }
                         .data-item{ /*Listed data usage*/
                             position: absolute;
-                            top: 60%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
+                            top: 28em;
+                            left: 0;
+                            width: 100%;
+                            margin: 0;
+                            text-align: center;
                         }
                         .phonenum{
                             font-family: monospace;
@@ -1566,15 +1575,17 @@ app.get('/datausage.html', async (req, res) => {
                     <!--Enter CustomerID-->
                 <form action = "/datausage.html" method = "GET">
                     <div class="customerId">
+                            <br>
                             <strong><label for = "customerid"><b>CustomerID:</b></label></strong>
                             <br>
                             <input type="text" name="customerId" id="customerid" maxlength="2">
                             <h3>OR</h3>
                             <br><br>
+                            <br>
                         </div>
                     <!--Phone number-->
                     <div class="phonenum">
-                            <strong><label for = "phoneNum"><b>Phone Number:</b></label></strong>
+                            <strong><label for = "phoneNum"><b><br>Phone Number:</b></label></strong>
                             <br>
                             <input type="text" name="phoneNum" id="phonenum" maxlength="10">
                             <br><br>
