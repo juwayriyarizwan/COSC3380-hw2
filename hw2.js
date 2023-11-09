@@ -212,6 +212,13 @@ app.get('/', async (req, res) =>{
                             left: 50%;      
                             transform: translate(-50%, -50%);
                         }
+                        .readme{
+                            font-family: monospace;
+                            position: absolute;
+                            top: 23%;
+                            left: 50%;      
+                            transform: translate(-50%, -50%);
+                        }
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -247,7 +254,9 @@ app.get('/', async (req, res) =>{
                         <span><a href="paymentmethod.html" style="color: white;">Payment Methods</a></span>
                         <span><a href="phoneplans.html" style="color: white;">Phone Plans</a></span>
                         <span><a href="datausage.html" style="color: white;">Data Usage</a></span>
+                        <span><a href="deleterows.html" style="color: white;">Delete all rows</a></span>
                     </div>
+                    <div class = "readme"><span><a href="hw2.README" style="color: white;">README</a></span></div>
                     <div class="transactions">
                         <h3>Transactions:</h3>
                     </div>
@@ -1567,6 +1576,426 @@ app.get('/datausage.html', async (req, res) => {
         <script src="hw2.js"></script>
             </body>
         </html>
+    `);
+})
+
+// Delete rows from a the phone plan table
+app.get('/deleterows.html', (req, res) => {
+    res.send(`
+        <!DOCTYPE html>
+        <html lang = "en">
+            <head>
+                <meta charset="UTF-8"> 
+                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                <link rel="stylesheet" type="text/css" href="style.css">
+                <title>Cell Phone Company </title> 
+                <style>
+                    body {
+                        padding-top: 5em;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    /*Page Gradient*/
+                    body.bg-gradient{
+                        height: 100vh;
+                        width: 100%; /* Add this line to make the gradient fill the entire width */
+                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                    }
+                    /*typewriter effect for all headers*/
+                    h1{
+                        color: #ffffff; /* Set text color to white */
+                        font-family: monospace;
+                        overflow: hidden;
+                        border-right: .15em solid rgb(255, 255, 255);
+                        white-space: nowrap;
+                        letter-spacing: .15em;
+                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                        height: 1.2em;
+                        text-align: center;
+                    }
+                    /* The typing effect */
+                    @keyframes typing {
+                        from { width: 0 }
+                        to { width: 100% }
+                    }
+                    /* The typewriter cursor effect */
+                    @keyframes blink-caret {
+                        from, to { border-color: transparent }
+                        50% { border-color: rgb(255, 255, 255); }
+                    }
+                    p {
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    }
+                    /*CustomerID, first name*/
+                        .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        /* Container for positioning */
+                        .content-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                        }
+                        /*Button to view transactions and customer info*/
+                        .button, .buttoninfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                        }
+                        /*Button for customer info page*/
+                        .buttoninfo{
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        p{ /*Please enter your CustomerID*/
+                            position: absolute;
+                            top: 20%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .customerId{ /*User input*/
+                            font-family: monospace;
+                            position: absolute;
+                            top: 30%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .transactions{ /*Transactions*/
+                            color: white;
+                            position: absolute;
+                            font-family: monospace;
+                            letter-spacing: .15em;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .data-item{ /*Listed data usage*/
+                            position: absolute;
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phonenum{
+                            font-family: monospace;
+                            position: absolute;
+                            top: 35%;
+                            left: 50%;      
+                            transform: translate(-50%, -50%);
+                        }
+                        h3{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        .deletephoneplan{
+                            text-align: center;
+                            position: absolute;
+                            color: white;
+                            font-family: monospace;
+                            top: 35%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                </style>
+            </head>
+            <body class="bg-gradient">
+            <!--Typewriter view all customer data usage-->
+            <div class="datause">
+                <h1>Delete Rows</h1> 
+            </div>
+            <br><br>
+            <p>This page will let you delete all the rows from the Phone_Plan table.</p>
+            <form action = "/deleterows.html" method = "POST">
+                    <div class="deletephoneplan">
+                    <strong><label for = "confirm"><b>Are you sure you want to DELETE ALL rows from the Phone_Plan?</b></label></strong>
+                    <br>
+                    <select name = "confirm" id = "confirm">
+                        <option value="NO">NO</option>
+                        <option value="YES">YES</option>
+                    </select>
+                    <br><br>
+                    </div>
+                    <!--Click button to delete rows-->
+                    <div class="button">
+                        <button type = "submit"> DELETE ALL ROWS</button>
+                    </div>
+            </form>
+            <!--Link JS file-->
+        <script src="hw2.js"></script>
+            </body>
+        </html>
+    `);
+});
+
+app.post('/deleterows.html', async (req, res) => {
+    let message = '';
+    const table = 'Phone_Plan';
+    // Confirm if user selects YES
+    if(req.body.confirm === 'YES'){
+        const deleteRows = `DELETE FROM ${table}`;
+        pool.query(deleteRows)
+            .then(() => {
+                console.log(`All rows deleted from ${table}`);
+            })
+            .catch(error => {
+                console.error(`Error deleting rows from ${table}:`, error);
+            })
+    }
+    // Could not delete all rows
+    else{
+        console.log("Deletion cancelled");
+    }
+    res.send(`
+    <!DOCTYPE html>
+        <html lang = "en">
+            <head>
+                <meta charset="UTF-8"> 
+                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                <link rel="stylesheet" type="text/css" href="style.css">
+                <title>Cell Phone Company </title> 
+                <style>
+                    body {
+                        padding-top: 5em;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    /*Page Gradient*/
+                    body.bg-gradient{
+                        height: 100vh;
+                        width: 100%; /* Add this line to make the gradient fill the entire width */
+                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                    }
+                    /*typewriter effect for all headers*/
+                    h1{
+                        color: #ffffff; /* Set text color to white */
+                        font-family: monospace;
+                        overflow: hidden;
+                        border-right: .15em solid rgb(255, 255, 255);
+                        white-space: nowrap;
+                        letter-spacing: .15em;
+                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                        height: 1.2em;
+                        text-align: center;
+                    }
+                    /* The typing effect */
+                    @keyframes typing {
+                        from { width: 0 }
+                        to { width: 100% }
+                    }
+                    /* The typewriter cursor effect */
+                    @keyframes blink-caret {
+                        from, to { border-color: transparent }
+                        50% { border-color: rgb(255, 255, 255); }
+                    }
+                    p {
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    }
+                    /*CustomerID, first name*/
+                        .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        /* Container for positioning */
+                        .content-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                        }
+                        /*Button to view transactions and customer info*/
+                        .button, .buttoninfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                        }
+                        /*Button for customer info page*/
+                        .buttoninfo{
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        p{ /*Please enter your CustomerID*/
+                            position: absolute;
+                            top: 20%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .customerId{ /*User input*/
+                            font-family: monospace;
+                            position: absolute;
+                            top: 30%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .transactions{ /*Transactions*/
+                            color: white;
+                            position: absolute;
+                            font-family: monospace;
+                            letter-spacing: .15em;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .data-item{ /*Listed data usage*/
+                            position: absolute;
+                            top: 60%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phonenum{
+                            font-family: monospace;
+                            position: absolute;
+                            top: 35%;
+                            left: 50%;      
+                            transform: translate(-50%, -50%);
+                        }
+                        h3{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        .deletephoneplan{
+                            text-align: center;
+                            position: absolute;
+                            color: white;
+                            font-family: monospace;
+                            top: 35%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                </style>
+            </head>
+            <body class="bg-gradient">
+            <!--Typewriter view all customer data usage-->
+            <div class="datause">
+                <h1>Delete Rows</h1> 
+            </div>
+            <br><br>
+            <p>This page will let you delete all the rows from the Phone_Plan table.</p>
+                <form action = "/deleterows.html" method = "POST">
+                    <div class="deletephoneplan">
+                    <strong><label for = "confirm"><b>Are you sure you want to DELETE ALL rows from the Phone_Plan?</b></label></strong>
+                    <br>
+                    <select name = "confirm" id = "confirm">
+                        <option value="NO">NO</option>
+                        <option value="YES">YES</option>
+                    </select>
+                    <br><br>
+                    </div>
+                    <!--Click button to delete rows-->
+                    <div class="button">
+                        <button type = "submit" id="deleteButton"> DELETE ALL ROWS</button>
+                    </div>
+                </form>
+            <div class="data-item">
+               ${message}
+            </div>
+            <!--Link JS file-->
+        <script src="hw2.js"></script>
+            </body>
+        </html>
+    `);
+})
+
+// Get README File
+app.get('/hw2.README', async(req, res) => {
+    res.send(`
+        <h1># HW2: Cell Phone Company</h1>
+        <p>
+        This application allows the user to create a new customer to add to the cell phone company database. 
+        The user is able to view transactions and search for a transaction as well. 
+        The user can also delete all the rows from a table.
+        </p>
+        <h2>Installation</h2>
+        <p>Packages:</p>
+        <p>npm install express</p>
+        <p>npm install pg</p>
+        <p>npm install body-parser</p>
+        <p>Once downloaded, the packages should be loaded into the 'node_modules' directory.</p>
+        <h3>Usage</h3>
+        <p>When running locally, user must have package.json, package-lock.json, and cred.json in the same directory as the hw2.js file.</p>
+        <p>To run the web application: node hw2.js</p>
+        <p>Traverse to "http://localhost:3000/" on a browser to access the website.</p>
+        <h3>Homepage</h3>
+        <p>The homepage of the web application allows the user to navigate through different links that perform certain tasks. 
+        On the homepage, it asks the user to enter a Customer ID or a phone number. 
+        A transaction must be present in the database in order to view one. 
+        To make a transation, the first link "Buy Services" allows you to make one.
+        </p>
+        <h3>Buy Services</h3>
+        <p>The Buy Services link allows the user to make a transaction. First, enter a name and phone number.
+        It will then allow the user to select the type of phone plan and payment method to commit to.
+        The user enters their recent call date and the duration of their call. The form will request to input a valid credit card number.
+        Valid credit card numbers are inserted into the SQL under the Bank_Account table. Simply enter any credit card number from the table.
+        When the button is clicked, the user is able to see their information as well as the calculated cost of the call, their total bill amount,
+        and the amount of MB used in their call.
+        </p>
+        <h3>Payment Methods</h3>
+        <p>The Payment Methods link allows the user to select between the two types of payment methods: Automatic and Manual.
+        With the drop down, the user simply selects a payment method to view and clicks the "View Report" button. 
+        The Payment Method Report lists all the customers that have selected that payment when making a transaction. 
+        </p>
+        <h3>Phone Plans</h3>
+        <p>The Phone Plans link allows the user to select between the two types of phone plans: Pre-paid and Post-paid.
+        With the drop down, the user simply selects a phone plan to view and clicks the "View Report" button. 
+        The Phone Plan Report lists all the customers that have selected that payment when making a transaction.
+
+        Disclaimer: If "Delete all rows" link has been executed, the user will not see any report for phone plans.
+        To see a report, the user must make a new transaction and come back to this link.
+        </p>
+        <h3>Data Usage</h3>
+        <p>The Data Usage link allows the user to enter a valid Customer ID and phone number. When the button is clicked,
+        a report for how much data was used for their call is listed in MB, with their corresponding call duration and call cost.
+        </p>
+        <h3>Delete all rows</h3>
+        <p>The Delete all rows link allows the user to delete all the rows that were stored in the Phone_Plan table. 
+        A confirmation message is asked to the user. If the user selects no, it will be displayed in the console. 
+        To confirm that the rows truly are deleted after selecting YES, the user can go back to the Phone Plans link and select a plan. 
+        The report will not be displayed once the rows are deleted. 
+        </p>
     `);
 })
 
