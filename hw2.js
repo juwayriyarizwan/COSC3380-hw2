@@ -134,13 +134,14 @@ app.get('/', async (req, res) =>{
                             letter-spacing: .15em;
                         }
                         /* Container for positioning */
-                        .content-container {
+                            .content-container {
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             justify-content: center;
                             height: 100vh;
-                        }
+                    }
+
                         /*Button to view transactions and customer info*/
                         .button, .buttoninfo{
                             color: white;
@@ -169,7 +170,7 @@ app.get('/', async (req, res) =>{
                         }
                         p{ /*Please enter your CustomerID*/
                             position: absolute;
-                            top: 20%;
+                            top: 18%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -190,8 +191,14 @@ app.get('/', async (req, res) =>{
                             transform: translate(-50%, -50%);
                         }
                         .transaction-item{ /*Listed transactions*/
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
                             position: absolute;
-                            top: 60%;
+                            top: 450px;
+                            right: -150px;
+                            width: 100%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -215,10 +222,12 @@ app.get('/', async (req, res) =>{
                         .readme{
                             font-family: monospace;
                             position: absolute;
-                            top: 23%;
+                            top: 21.7%;
                             left: 50%;      
                             transform: translate(-50%, -50%);
+                        .transaction
                         }
+                        
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -498,7 +507,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Button for customer info page*/
                         .buttoninfo{
-                            top: 75%;
+                            top: 73%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -507,31 +516,31 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         .firstname{
                             position: absolute;
-                            top: 27%;
+                            top: 25%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .lastname{
                             position: absolute;
-                            top: 32%;
+                            top: 30%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             position: absolute;
-                            top: 37%;
+                            top: 35%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phoneplan{
                             position: absolute;
-                            top: 45%;
+                            top: 43%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .payplan{
                             position: absolute;
-                            top: 50%;
+                            top: 48%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -557,7 +566,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 55%;
+                            top: 53%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -567,7 +576,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 61.5%;
+                            top: 59.5%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -577,7 +586,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 68%;
+                            top: 66%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -590,6 +599,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <br><br>
                     <div class = "tinyheader">
+                    <br><br>
+                    <br><br>
                     <p>Make a transaction</p>
                     </div>
                     <form action = "/cellphoneservices.html" method = "POST">
@@ -733,175 +744,175 @@ app.post('/cellphoneservices.html', async (req, res) => {
             <!DOCTYPE html>
             <html lang = "en">
                 <head>
-                    <meta charset="UTF-8"> 
-                    <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
-                    <link rel="stylesheet" type="text/css" href="style.css">
-                    <title>Cell Phone Company </title> 
-                    <style>
-                        body {
-                            padding-top: 5em;
-                            display: flex;
-                            justify-content: center;
-                        }
-                        /*Page Gradient*/
-                        body.bg-gradient{
-                            height: 109vh;
-                            width: 100%; /* Add this line to make the gradient fill the entire width */
-                            background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
-                        }
-                        /*typewriter effect for all headers*/
-                        h1{
-                            color: #ffffff; /* Set text color to white */
-                            font-family: monospace;
-                            overflow: hidden;
-                            border-right: .15em solid rgb(255, 255, 255);
-                            white-space: nowrap;
-                            letter-spacing: .15em;
-                            animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
-                            height: 1.2em;
-                            text-align: center;
-                        }
-                        /* The typing effect */
-                        @keyframes typing {
-                            from { width: 0 }
-                            to { width: 100% }
-                        }
-                        /* The typewriter cursor effect */
-                        @keyframes blink-caret {
-                            from, to { border-color: transparent }
-                            50% { border-color: rgb(255, 255, 255); }
-                        }
-                        p {
-                            text-align: center;
-                            color: white;
-                            font-family: monospace;
-                        }
-                        /*CustomerID, first name*/
-                        .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                        }
-                        /* Container for positioning */
-                        .content-container {
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            justify-content: center;
-                            height: 100vh;
-                        }
-                        /*Button to view transactions and customer info*/
-                        .button, .buttoninfo{
-                            color: white;
-                            background-color: rgb(78, 131, 177);
-                            position: absolute;
-                            padding: 10px 20px; 
-                            top: 40%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            cursor: pointer;
-                            font-family: monospace;
-                            text-align: center;
-                            text-decoration: none;
-                            border: 1px solid white;
-                            transition: background-color 0.3s;
-                            border-radius: 12px;
-                        }
-                        /*Button for customer info page*/
-                        .buttoninfo{
-                            top: 75%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .button:hover, .buttoninfo:hover{
-                            background-color: rgb(66, 112, 153);
-                        }
-                        .firstname{
-                            position: absolute;
-                            top: 27%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .lastname{
-                            position: absolute;
-                            top: 32%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .phonenum{
-                            position: absolute;
-                            top: 37%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .phoneplan{
-                            position: absolute;
-                            top: 45%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .payplan{
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .viewService{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                            position: absolute;
-                            top: 75%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .tinyheader{
-                            position: absolute;
-                            top: 15%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .calldate{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                            position: absolute;
-                            top: 55%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .callduration{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                            position: absolute;
-                            top: 61.5%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .creditcard{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                            position: absolute;
-                            top: 68%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                        }
-                        .viewnewCust{
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
-                            position: absolute;
-                            top: 100%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
+                <meta charset="UTF-8"> 
+                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                <link rel="stylesheet" type="text/css" href="style.css">
+                <title>Cell Phone Company </title> 
+                <style>
+                    body {
+                        padding-top: 5em;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    /*Page Gradient*/
+                    body.bg-gradient{
+                        height: 109vh;
+                        width: 100%; /* Add this line to make the gradient fill the entire width */
+                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                    }
+                    /*typewriter effect for all headers*/
+                    h1{
+                        color: #ffffff; /* Set text color to white */
+                        font-family: monospace;
+                        overflow: hidden;
+                        border-right: .15em solid rgb(255, 255, 255);
+                        white-space: nowrap;
+                        letter-spacing: .15em;
+                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                        height: 1.2em;
+                        text-align: center;
+                    }
+                    /* The typing effect */
+                    @keyframes typing {
+                        from { width: 0 }
+                        to { width: 100% }
+                    }
+                    /* The typewriter cursor effect */
+                    @keyframes blink-caret {
+                        from, to { border-color: transparent }
+                        50% { border-color: rgb(255, 255, 255); }
+                    }
+                    p {
+                        text-align: center;
+                        color: white;
+                        font-family: monospace;
+                    }
+                    /*CustomerID, first name*/
+                    .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                    }
+                    /* Container for positioning */
+                    .content-container {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
+                    }
+                    /*Button to view transactions and customer info*/
+                    .button, .buttoninfo{
+                        color: white;
+                        background-color: rgb(78, 131, 177);
+                        position: absolute;
+                        padding: 10px 20px; 
+                        top: 40%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        cursor: pointer;
+                        font-family: monospace;
+                        text-align: center;
+                        text-decoration: none;
+                        border: 1px solid white;
+                        transition: background-color 0.3s;
+                        border-radius: 12px;
+                    }
+                    /*Button for customer info page*/
+                    .buttoninfo{
+                        top: 75%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .button:hover, .buttoninfo:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    .firstname{
+                        position: absolute;
+                        top: 27%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .lastname{
+                        position: absolute;
+                        top: 32%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .phonenum{
+                        position: absolute;
+                        top: 37%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .phoneplan{
+                        position: absolute;
+                        top: 45%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .payplan{
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .viewService{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 75%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .tinyheader{
+                        position: absolute;
+                        top: 15%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .calldate{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 55%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .callduration{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 61.5%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .creditcard{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 68%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                    }
+                    .viewnewCust{
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 100%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
                         }
                     </style>
                 </head>
@@ -1004,6 +1015,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
         return res.status(500).send("Error: " + err.message);
     }
 });
+
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
@@ -1528,10 +1540,16 @@ app.get('/datausage.html', async (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .data-item{ /*Listed data usage*/
-                            position: absolute;
-                            top: 60%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
+                        color: white;
+                        font-family: monospace;
+                        text-align: center;
+                        letter-spacing: .15em;
+                        position: absolute;
+                        top: 430px;
+                        right: -150px;
+                        width: 100%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             font-family: monospace;
