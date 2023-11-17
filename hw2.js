@@ -665,6 +665,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
 app.post('/cellphoneservices.html', async (req, res) => {
     const {firstname, lastname, phonenum, plans, pay, calldate, callduration, creditcard} = req.body;
     const readData = {firstname, lastname, phonenum, plans, pay, calldate, callduration, creditcard};
+    // Record transaction time in milliseconds
+    const startTime = Date.now();   
     try{
         // Verify the credit card number
         const verifyCard = `
@@ -722,6 +724,10 @@ app.post('/cellphoneservices.html', async (req, res) => {
                 return;
             }
         }
+        const endTime = Date.now();
+        // Record elapsed time
+        const elapsed = endTime - startTime;
+        console.log(`Transaction time: ${elapsed} milliseconds`);
         // Print to webpage
         res.send(`
             <!DOCTYPE html>
@@ -988,6 +994,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <p>Call Cost: $${callCost.toFixed(2)}</p>
                         <p>Data Usage: ${dataUsage.toFixed(2)} MB</p>
                         <p>Total Bill Amount: $${updateBillAmount}</p>
+                        <p>Transaction time: ${elapsed} milliseconds<p>
                     </div>
                 </body>
             </html>
