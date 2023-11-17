@@ -505,13 +505,40 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             transition: background-color 0.3s;
                             border-radius: 12px;
                         }
+                        /*Button for Home Button*/
+                        .button2, .homeinfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                        }
+                        /*Button for Home button*/
+                        .homeinfo{
+                            top: 73%;
+                            left: 54.5%;
+                            transform: translate(-50%, -50%);
+                        }
+
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 73%;
-                            left: 50%;
+                            left: 44%;
                             transform: translate(-50%, -50%);
                         }
                         .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homeinfo:hover{
                             background-color: rgb(66, 112, 153);
                         }
                         .firstname{
@@ -662,9 +689,11 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         <input type="text" name="creditcard" value="" maxlength="16" required>
                     </div>
                     <div class="buttoninfo">
-                        <button type = "submit">
-                            View transaction
-                        </button>
+                        <button type = "submit"> View Transaction </button>
+
+                    </div>
+                    <div class="homeinfo">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                     </form>
                     </div>
                 </body>
@@ -756,7 +785,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                     }
                     /*Page Gradient*/
                     body.bg-gradient{
-                        height: 109vh;
+                        height: 122vh;
                         width: 100%; /* Add this line to make the gradient fill the entire width */
                         background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
                     }
@@ -819,13 +848,39 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         transition: background-color 0.3s;
                         border-radius: 12px;
                     }
+                    /*Button for Home Button*/
+                        .button2, .homeinfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                    /*Button for Home button*/
+                        .homeinfo{
+                            top: 75%;
+                            left: 54.5%;
+                            transform: translate(-50%, -50%);
+                    }
                     /*Button for customer info page*/
                     .buttoninfo{
                         top: 75%;
-                        left: 50%;
+                        left: 44%;
                         transform: translate(-50%, -50%);
                     }
                     .button:hover, .buttoninfo:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    .button:hover, .homeinfo:hover{
                         background-color: rgb(66, 112, 153);
                     }
                     .firstname{
@@ -910,8 +965,8 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         text-align: center;
                         letter-spacing: .15em;
                         position: absolute;
-                        top: 100%;
-                        left: 50%;
+                        top: 700%;
+                        left: -16%;
                         transform: translate(-50%, -50%);
                         }
                     </style>
@@ -987,10 +1042,10 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <input type="text" name="creditcard" value="" maxlength="16" required>
                     </div>
                     <div class="buttoninfo">
-                        <button type = "submit">
-                            View transaction
-                        </button>
+                        <button type = "submit"> View Transaction </button>
                     </div>
+                    <div class ="homeinfo">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                     </form>
                     <div class = "viewnewCust">
                         <h2>Customer Information</h2>
@@ -1104,7 +1159,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                         position: absolute;
                         padding: 10px 20px; 
                         top: 40%;
-                        left: 50%;
+                        left: 44%;
                         transform: translate(-50%, -50%);
                         cursor: pointer;
                         font-family: monospace;
@@ -1114,13 +1169,39 @@ app.get('/paymentmethod.html', async (req, res) => {
                         transition: background-color 0.3s;
                         border-radius: 12px;
                     }
+                    /*Button for Home Button*/
+                        .button2, .homebutton{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 30%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                    /*Button for Home button*/
+                        .homeinfo{
+                            top: 40%;
+                            left: 54.5%;
+                            transform: translate(-50%, -50%);
+                    }
                     /*Button for payment method page*/
                     .reportbutton{
                         top: 30%;
-                        left: 50%;
+                        left: 45%;
                         transform: translate(-50%, -50%);
                     }
                     .reportbutton:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    .button:hover, .homebutton:hover{
                         background-color: rgb(66, 112, 153);
                     }
                     /*CustomerID, first name*/
@@ -1161,8 +1242,9 @@ app.get('/paymentmethod.html', async (req, res) => {
                         text-align: center;
                         letter-spacing: .15em;
                         position: absolute;
-                        top: 58%;
-                        left: 50%;
+                        top: 850%;
+                        left: -22%;
+                        width: 800%;
                         transform: translate(-50%, -50%);
                     }
                     h3{
@@ -1194,6 +1276,8 @@ app.get('/paymentmethod.html', async (req, res) => {
             <div class="reportbutton">
                 <button type = "submit"> View Report</button>
             </div>
+            <div class ="homebutton">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <div class="paymentReport">
                 ${paymethodHtml}
@@ -1285,7 +1369,7 @@ app.get('/phoneplans.html', async(req, res) => {
                         position: absolute;
                         padding: 10px 20px; 
                         top: 40%;
-                        left: 50%;
+                        left: 55%;
                         transform: translate(-50%, -50%);
                         cursor: pointer;
                         font-family: monospace;
@@ -1295,13 +1379,39 @@ app.get('/phoneplans.html', async(req, res) => {
                         transition: background-color 0.3s;
                         border-radius: 12px;
                     }
+                    /*Button for Home Button*/
+                        .button2, .homebutton{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 30%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                    /*Button for Home button*/
+                        .homeinfo{
+                            top: 40%;
+                            left: 52%;
+                            transform: translate(-50%, -50%);
+                    }
                     /*Button for phone plan page*/
                     .reportbutton{
                         top: 30%;
-                        left: 50%;
+                        left: 45%;
                         transform: translate(-50%, -50%);
                     }
                     .reportbutton:hover{
+                        background-color: rgb(66, 112, 153);
+                    }
+                    .button:hover, .homebutton:hover{
                         background-color: rgb(66, 112, 153);
                     }
                     .phoneplanreport{
@@ -1322,10 +1432,12 @@ app.get('/phoneplans.html', async(req, res) => {
                     .planReport{
                         text-align: center;
                         position: absolute;
+                        letter-spacing: .15em;
                         color: white;
                         font-family: monospace;
-                        top: 55%;
-                        left: 50%;
+                        top: 520%;
+                        left: -25%;
+                        width: 800%;
                         transform: translate(-50%, -50%);
                     }
                 </style>
@@ -1351,6 +1463,8 @@ app.get('/phoneplans.html', async(req, res) => {
             <div class="reportbutton">
                 <button type = "submit"> View Report</button>
             </div>
+            <div class ="homebutton">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <div class="planReport">
                 ${planHtml}
@@ -1498,7 +1612,7 @@ app.get('/datausage.html', async (req, res) => {
                             position: absolute;
                             padding: 10px 20px; 
                             top: 40%;
-                            left: 50%;
+                            left: 45%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -1508,6 +1622,29 @@ app.get('/datausage.html', async (req, res) => {
                             transition: background-color 0.3s;
                             border-radius: 12px;
                         }
+                        /*Button for Home Button*/
+                        .button2, .homebutton{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 54.5%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                    /*Button for Home button*/
+                        .homeinfo{
+                            top: 40%;
+                            left: 52%;
+                            transform: translate(-50%, -50%);
+                    }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1515,6 +1652,9 @@ app.get('/datausage.html', async (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homebutton:hover{
                             background-color: rgb(66, 112, 153);
                         }
                         p{ /*Please enter your CustomerID*/
@@ -1545,10 +1685,9 @@ app.get('/datausage.html', async (req, res) => {
                         text-align: center;
                         letter-spacing: .15em;
                         position: absolute;
-                        top: 430px;
-                        right: -150px;
-                        width: 100%;
-                        left: 50%;
+                        top: 250%;
+                        width: 1300%;
+                        left: -19%;
                         transform: translate(-50%, -50%);
                         }
                         .phonenum{
@@ -1593,6 +1732,8 @@ app.get('/datausage.html', async (req, res) => {
                     <div class="button">
                         <button type = "submit"> View Report</button>
                     </div>
+                    <div class ="homebutton">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                 ${dataUsagehtml}
@@ -1675,7 +1816,7 @@ app.get('/deleterows.html', (req, res) => {
                             position: absolute;
                             padding: 10px 20px; 
                             top: 40%;
-                            left: 50%;
+                            left: 43%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -1685,6 +1826,29 @@ app.get('/deleterows.html', (req, res) => {
                             transition: background-color 0.3s;
                             border-radius: 12px;
                         }
+                        /*Button for Home Button*/
+                        .button2, .homebutton{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                        /*Button for Home button*/
+                        .homeinfo{
+                            top: 40%;
+                            left: 52%;
+                            transform: translate(-50%, -50%);
+                    }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1692,6 +1856,9 @@ app.get('/deleterows.html', (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homebutton:hover{
                             background-color: rgb(66, 112, 153);
                         }
                         p{ /*Please enter your CustomerID*/
@@ -1740,7 +1907,7 @@ app.get('/deleterows.html', (req, res) => {
                             position: absolute;
                             color: white;
                             font-family: monospace;
-                            top: 35%;
+                            top: 30%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -1767,6 +1934,8 @@ app.get('/deleterows.html', (req, res) => {
                     <div class="button">
                         <button type = "submit"> DELETE ALL ROWS</button>
                     </div>
+                    <div class ="homebutton">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <!--Link JS file-->
         <script src="hw2.js"></script>
@@ -1862,7 +2031,7 @@ app.post('/deleterows.html', async (req, res) => {
                             position: absolute;
                             padding: 10px 20px; 
                             top: 40%;
-                            left: 50%;
+                            left: 43%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -1872,6 +2041,29 @@ app.post('/deleterows.html', async (req, res) => {
                             transition: background-color 0.3s;
                             border-radius: 12px;
                         }
+                        /*Button for Home Button*/
+                        .button2, .homebutton{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 55%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                    }
+                        /*Button for Home button*/
+                        .homeinfo{
+                            top: 40%;
+                            left: 52%;
+                            transform: translate(-50%, -50%);
+                    }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1879,6 +2071,9 @@ app.post('/deleterows.html', async (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homebutton:hover{
                             background-color: rgb(66, 112, 153);
                         }
                         p{ /*Please enter your CustomerID*/
@@ -1927,7 +2122,7 @@ app.post('/deleterows.html', async (req, res) => {
                             position: absolute;
                             color: white;
                             font-family: monospace;
-                            top: 35%;
+                            top: 30%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -1954,6 +2149,8 @@ app.post('/deleterows.html', async (req, res) => {
                     <div class="button">
                         <button type = "submit" id="deleteButton"> DELETE ALL ROWS</button>
                     </div>
+                    <div class ="homebutton">
+                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                ${message}
