@@ -38,14 +38,13 @@ app.get('/', async (req, res) =>{
                 Transactions t
               JOIN
                 Customer c ON t.customer_id = c.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Payment_Method p ON t.customer_id = p.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Phone_Plan pp ON t.customer_id = pp.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Data_Usage du ON t.customer_id = du.customer_id
             `;
-
             const queryParams = [];
             // Allow user to input either id or number
             if(customerId){
@@ -72,6 +71,7 @@ app.get('/', async (req, res) =>{
                 }).join('');
             }
         }
+        
         // Error
         catch (err) {
             return res.status(500).send("Error: " + err.message);
@@ -134,14 +134,13 @@ app.get('/', async (req, res) =>{
                             letter-spacing: .15em;
                         }
                         /* Container for positioning */
-                            .content-container {
+                        .content-container {
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             justify-content: center;
                             height: 100vh;
-                    }
-
+                        }
                         /*Button to view transactions and customer info*/
                         .button, .buttoninfo{
                             color: white;
@@ -225,9 +224,7 @@ app.get('/', async (req, res) =>{
                             top: 21.7%;
                             left: 50%;      
                             transform: translate(-50%, -50%);
-                        .transaction
                         }
-                        
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -697,7 +694,6 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             left: 54.5%;
                             transform: translate(-50%, -50%);
                         }
-
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 73%;
@@ -859,7 +855,6 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <div class="buttoninfo">
                         <button type = "submit"> View Transaction </button>
-
                     </div>
                     <div class="homeinfo">
                         <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
@@ -942,82 +937,82 @@ app.post('/cellphoneservices.html', async (req, res) => {
             <!DOCTYPE html>
             <html lang = "en">
                 <head>
-                <meta charset="UTF-8"> 
-                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
-                <link rel="stylesheet" type="text/css" href="style.css">
-                <title>Cell Phone Company </title> 
-                <style>
-                    body {
-                        padding-top: 5em;
-                        display: flex;
-                        justify-content: center;
-                    }
-                    /*Page Gradient*/
-                    body.bg-gradient{
-                        height: 126vh;
-                        width: 100%; /* Add this line to make the gradient fill the entire width */
-                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
-                    }
-                    /*typewriter effect for all headers*/
-                    h1{
-                        color: #ffffff; /* Set text color to white */
-                        font-family: monospace;
-                        overflow: hidden;
-                        border-right: .15em solid rgb(255, 255, 255);
-                        white-space: nowrap;
-                        letter-spacing: .15em;
-                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
-                        height: 1.2em;
-                        text-align: center;
-                    }
-                    /* The typing effect */
-                    @keyframes typing {
-                        from { width: 0 }
-                        to { width: 100% }
-                    }
-                    /* The typewriter cursor effect */
-                    @keyframes blink-caret {
-                        from, to { border-color: transparent }
-                        50% { border-color: rgb(255, 255, 255); }
-                    }
-                    p {
-                        text-align: center;
-                        color: white;
-                        font-family: monospace;
-                    }
-                    /*CustomerID, first name*/
-                    .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                    }
-                    /* Container for positioning */
-                    .content-container {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                    }
-                    /*Button to view transactions and customer info*/
-                    .button, .buttoninfo{
-                        color: white;
-                        background-color: rgb(78, 131, 177);
-                        position: absolute;
-                        padding: 10px 20px; 
-                        top: 40%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        cursor: pointer;
-                        font-family: monospace;
-                        text-align: center;
-                        text-decoration: none;
-                        border: 1px solid white;
-                        transition: background-color 0.3s;
-                        border-radius: 12px;
-                    }
-                    /*Button for Home Button*/
+                    <meta charset="UTF-8"> 
+                    <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                    <link rel="stylesheet" type="text/css" href="style.css">
+                    <title>Cell Phone Company </title> 
+                    <style>
+                        body {
+                            padding-top: 5em;
+                            display: flex;
+                            justify-content: center;
+                        }
+                        /*Page Gradient*/
+                        body.bg-gradient{
+                            height: 126vh;
+                            width: 100%; /* Add this line to make the gradient fill the entire width */
+                            background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                        }
+                        /*typewriter effect for all headers*/
+                        h1{
+                            color: #ffffff; /* Set text color to white */
+                            font-family: monospace;
+                            overflow: hidden;
+                            border-right: .15em solid rgb(255, 255, 255);
+                            white-space: nowrap;
+                            letter-spacing: .15em;
+                            animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                            height: 1.2em;
+                            text-align: center;
+                        }
+                        /* The typing effect */
+                        @keyframes typing {
+                            from { width: 0 }
+                            to { width: 100% }
+                        }
+                        /* The typewriter cursor effect */
+                        @keyframes blink-caret {
+                            from, to { border-color: transparent }
+                            50% { border-color: rgb(255, 255, 255); }
+                        }
+                        p {
+                            text-align: center;
+                            color: white;
+                            font-family: monospace;
+                        }
+                        /*CustomerID, first name*/
+                        .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        /* Container for positioning */
+                        .content-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                        }
+                        /*Button to view transactions and customer info*/
+                        .button, .buttoninfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                        }
+                        /*Button for Home Button*/
                         .button2, .homeinfo{
                             color: white;
                             background-color: rgb(78, 131, 177);
@@ -1033,110 +1028,110 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                    /*Button for Home button*/
-                        .homeinfo{
+                        }
+                        /*Button for Home button*/
+                            .homeinfo{
+                                top: 75%;
+                                left: 54.5%;
+                                transform: translate(-50%, -50%);
+                        }
+                        /*Button for customer info page*/
+                        .buttoninfo{
                             top: 75%;
-                            left: 54.5%;
+                            left: 44%;
                             transform: translate(-50%, -50%);
-                    }
-                    /*Button for customer info page*/
-                    .buttoninfo{
-                        top: 75%;
-                        left: 44%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .button:hover, .buttoninfo:hover{
-                        background-color: rgb(66, 112, 153);
-                    }
-                    .button:hover, .homeinfo:hover{
-                        background-color: rgb(66, 112, 153);
-                    }
-                    .firstname{
-                        position: absolute;
-                        top: 27%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .lastname{
-                        position: absolute;
-                        top: 32%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .phonenum{
-                        position: absolute;
-                        top: 37%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .phoneplan{
-                        position: absolute;
-                        top: 45%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .payplan{
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .viewService{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 75%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .tinyheader{
-                        position: absolute;
-                        top: 15%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .calldate{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 55%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .callduration{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 61.5%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .creditcard{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 68%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .viewnewCust{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 700%;
-                        left: -16%;
-                        transform: translate(-50%, -50%);
+                        }
+                        .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homeinfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .firstname{
+                            position: absolute;
+                            top: 27%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .lastname{
+                            position: absolute;
+                            top: 32%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phonenum{
+                            position: absolute;
+                            top: 37%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phoneplan{
+                            position: absolute;
+                            top: 45%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .payplan{
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .viewService{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 75%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .tinyheader{
+                            position: absolute;
+                            top: 15%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .calldate{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 55%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .callduration{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 61.5%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .creditcard{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 68%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .viewnewCust{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 700%;
+                            left: -16%;
+                            transform: translate(-50%, -50%);
                         }
                     </style>
                 </head>
@@ -1239,7 +1234,6 @@ app.post('/cellphoneservices.html', async (req, res) => {
         return res.status(500).send("Error: " + err.message);
     }
 });
-
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
@@ -1446,7 +1440,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                 <button type = "submit"> View Report</button>
             </div>
             <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <div class="paymentReport">
                 ${paymethodHtml}
@@ -1549,21 +1543,21 @@ app.get('/phoneplans.html', async(req, res) => {
                         border-radius: 12px;
                     }
                     /*Button for Home Button*/
-                        .button2, .homebutton{
-                            color: white;
-                            background-color: rgb(78, 131, 177);
-                            position: absolute;
-                            padding: 10px 20px; 
-                            top: 30%;
-                            left: 55%;
-                            transform: translate(-50%, -50%);
-                            cursor: pointer;
-                            font-family: monospace;
-                            text-align: center;
-                            text-decoration: none;
-                            border: 1px solid white;
-                            transition: background-color 0.3s;
-                            border-radius: 12px;
+                    .button2, .homebutton{
+                        color: white;
+                        background-color: rgb(78, 131, 177);
+                        position: absolute;
+                        padding: 10px 20px; 
+                        top: 30%;
+                        left: 55%;
+                        transform: translate(-50%, -50%);
+                        cursor: pointer;
+                        font-family: monospace;
+                        text-align: center;
+                        text-decoration: none;
+                        border: 1px solid white;
+                        transition: background-color 0.3s;
+                        border-radius: 12px;
                     }
                     /*Button for Home button*/
                         .homeinfo{
@@ -1586,10 +1580,12 @@ app.get('/phoneplans.html', async(req, res) => {
                     .phoneplanreport{
                         text-align: center;
                         position: absolute;
+                        letter-spacing: .15em;
                         color: white;
                         font-family: monospace;
                         top: 20%;
                         left: 50%;
+                        width: 800%;
                         transform: translate(-50%, -50%);
                     }
                     h3{
@@ -1604,8 +1600,8 @@ app.get('/phoneplans.html', async(req, res) => {
                         letter-spacing: .15em;
                         color: white;
                         font-family: monospace;
-                        top: 520%;
-                        left: -25%;
+                        top: 50%;
+                        left: 50%;
                         width: 800%;
                         transform: translate(-50%, -50%);
                     }
@@ -1633,9 +1629,9 @@ app.get('/phoneplans.html', async(req, res) => {
                 <button type = "submit"> View Report</button>
             </div>
             <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </div>
-            </form>
+        </form>
             <div class="planReport">
                 ${planHtml}
             </div>
@@ -1807,14 +1803,14 @@ app.get('/datausage.html', async (req, res) => {
                             text-decoration: none;
                             border: 1px solid white;
                             transition: background-color 0.3s;
-                            border-radius: 12px;
-                    }
-                    /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                                border-radius: 12px;
+                        }
+                        /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1850,15 +1846,15 @@ app.get('/datausage.html', async (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .data-item{ /*Listed data usage*/
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 250%;
-                        width: 1300%;
-                        left: -19%;
-                        transform: translate(-50%, -50%);
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 250%;
+                            width: 1300%;
+                            left: -19%;
+                            transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             font-family: monospace;
@@ -1903,7 +1899,7 @@ app.get('/datausage.html', async (req, res) => {
                         <button type = "submit"> View Report</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                 ${dataUsagehtml}
@@ -1985,8 +1981,8 @@ app.get('/deleterows.html', (req, res) => {
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 40%;
-                            left: 43%;
+                            top: 43%;
+                            left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -2012,13 +2008,13 @@ app.get('/deleterows.html', (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                        /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                        }
+                            /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -2105,7 +2101,7 @@ app.get('/deleterows.html', (req, res) => {
                         <button type = "submit"> DELETE ALL ROWS</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <!--Link JS file-->
         <script src="hw2.js"></script>
@@ -2201,7 +2197,7 @@ app.post('/deleterows.html', async (req, res) => {
                             position: absolute;
                             padding: 10px 20px; 
                             top: 40%;
-                            left: 43%;
+                            left: 43%;;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -2227,13 +2223,13 @@ app.post('/deleterows.html', async (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                        /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                        }
+                            /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -2320,7 +2316,7 @@ app.post('/deleterows.html', async (req, res) => {
                         <button type = "submit" id="deleteButton"> DELETE ALL ROWS</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                ${message}
@@ -2390,11 +2386,6 @@ app.get('/hw2.README', async(req, res) => {
         </p>
     `);
 })
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
-});
-
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
