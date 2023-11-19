@@ -38,14 +38,13 @@ app.get('/', async (req, res) =>{
                 Transactions t
               JOIN
                 Customer c ON t.customer_id = c.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Payment_Method p ON t.customer_id = p.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Phone_Plan pp ON t.customer_id = pp.customer_id
-            LEFT JOIN
+              LEFT JOIN
                 Data_Usage du ON t.customer_id = du.customer_id
             `;
-
             const queryParams = [];
             // Allow user to input either id or number
             if(customerId){
@@ -56,7 +55,7 @@ app.get('/', async (req, res) =>{
                 query += " WHERE c.phone_number = $1";
                 queryParams.push(phoneNumber);
             }
-
+            query += " ORDER BY t.transaction_date DESC LIMIT 1;";
             const result = await pool.query(query, queryParams);
 
             if(result.rows.length > 0){
@@ -72,6 +71,7 @@ app.get('/', async (req, res) =>{
                 }).join('');
             }
         }
+        
         // Error
         catch (err) {
             return res.status(500).send("Error: " + err.message);
@@ -134,14 +134,13 @@ app.get('/', async (req, res) =>{
                             letter-spacing: .15em;
                         }
                         /* Container for positioning */
-                            .content-container {
+                        .content-container {
                             display: flex;
                             flex-direction: column;
                             align-items: center;
                             justify-content: center;
                             height: 100vh;
-                    }
-
+                        }
                         /*Button to view transactions and customer info*/
                         .button, .buttoninfo{
                             color: white;
@@ -170,7 +169,7 @@ app.get('/', async (req, res) =>{
                         }
                         p{ /*Please enter your CustomerID*/
                             position: absolute;
-                            top: 18%;
+                            top: 20%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -191,14 +190,8 @@ app.get('/', async (req, res) =>{
                             transform: translate(-50%, -50%);
                         }
                         .transaction-item{ /*Listed transactions*/
-                            color: white;
-                            font-family: monospace;
-                            text-align: center;
-                            letter-spacing: .15em;
                             position: absolute;
-                            top: 450px;
-                            right: -150px;
-                            width: 100%;
+                            top: 60%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -222,12 +215,10 @@ app.get('/', async (req, res) =>{
                         .readme{
                             font-family: monospace;
                             position: absolute;
-                            top: 21.7%;
+                            top: 23%;
                             left: 50%;      
                             transform: translate(-50%, -50%);
-                        .transaction
                         }
-                        
                     </style>
                 </head>
                 <body class="bg-gradient">
@@ -316,91 +307,260 @@ function calculateCallCost(callDuration, dataRate, perMB){
 // Add new customers
 async function insertCustomer(readData, res, callduration, creditcard){
     const userInput = await pool.connect();
+    let customerId;
+    let BillAmount;
+    let dataUsage;
     try{
         await userInput.query('BEGIN');
-        // Calculate cost of call
-        const callCost = calculateCallCost(callduration, dataRate, perMB);
-        // Calculate data usage
-        const dataUsage = calculateDataUsage(callduration, dataRate);
-        const insertInfo = `
+
+        // Check if there is an existing customer
+        const checkExistingCust = `
+            SELECT customer_id FROM Customer
+            WHERE first_name = $1 AND last_name = $2 AND phone_number = $3
+            LIMIT 1;
+        `;
+        const existingCust = await userInput.query(checkExistingCust, [readData.firstname, readData.lastname, readData.phonenum]);
+        // If customer exists, use same customer id
+        if(existingCust.rows.length > 0){
+            // Update the existing records
+            customerId = existingCust.rows[0].customer_id;
+
+            // Calculate cost of call
+            const callCost = calculateCallCost(callduration, dataRate, perMB);
+            // Calculate data usage
+            dataUsage = calculateDataUsage(callduration, dataRate);
+            const updateCustomerInfo = `
+            UPDATE Customer
+            SET payment_method = $1, phone_plan = $2
+            WHERE customer_id = $3;
+            `;
+            const updateCustomerData = [
+                readData.pay,
+                readData.plans,
+                customerId
+            ];
+
+            await userInput.query(updateCustomerInfo, updateCustomerData);
+
+            // Update phone plan table
+            const checkPhonePlan = `
+            SELECT COUNT(*)
+            FROM Phone_Plan
+            WHERE customer_id = $1 AND phone_plan = $2;
+            `;
+            // If existing customer wants to change their phone plan
+            const phonePlanCount = await userInput.query(checkPhonePlan, [customerId, readData.plans]);
+            if (phonePlanCount.rows[0].count === 0) {
+                const insertPhone = `
+                    INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
+                    VALUES ($1, $2, $3, $4, $5);
+                `;
+                const phoneData = [
+                    customerId,
+                    readData.firstname,
+                    readData.lastname,
+                    readData.phonenum,
+                    readData.plans
+                ];
+                await userInput.query(insertPhone, phoneData);
+            }
+            else{
+                // If phone plan exists, update the existing record
+                const updatePhonePlan = `
+                UPDATE Phone_Plan
+                SET phone_plan = $1
+                WHERE customer_id = $2;
+                `;
+                const updatePhonePlanData = [
+                    readData.plans,
+                    customerId
+                ];
+                await userInput.query(updatePhonePlan, updatePhonePlanData);
+            }
+
+            // Update payment method table
+            const checkPayment = `
+            SELECT COUNT(*)
+            FROM Payment_Method
+            WHERE customer_id = $1 AND payment_method = $2;
+            `;
+            // If existing customer wants to change their payment method
+            const paymentMethodCount = await userInput.query(checkPayment, [customerId, readData.pay]);
+            if (paymentMethodCount.rows[0].count === 0) {
+                const insertPayment = `
+                    INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amount)
+                    VALUES ($1, $2, $3, $4);
+                `;
+                const paymentData = [
+                    customerId,
+                    readData.phonenum,
+                    readData.pay,
+                    0,  // Initial bill amount
+                ];
+                await userInput.query(insertPayment, paymentData);
+            }
+            else{
+                // If payment method exists, update the existing record
+                const updatePaymentMethod = `
+                UPDATE Payment_Method
+                SET payment_method = $1
+                WHERE customer_id = $2;
+                `;
+                const updatePaymentMethodData = [
+                    readData.pay,
+                    customerId
+                ];
+                await userInput.query(updatePaymentMethod, updatePaymentMethodData);
+            }
+
+            // Update data usage table
+            const insertUsage = `
+                INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost, data_usage)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                ON CONFLICT (customer_id) DO UPDATE
+                SET call_time = $3, call_date = $4, call_cost = $5, data_usage = Data_Usage.data_usage + $6
+                RETURNING *;
+            `;
+            const usageData = [
+                customerId,
+                readData.phonenum,
+                callduration,
+                readData.calldate,
+                callCost,
+                0, //initial data usage amount
+            ];
+            await userInput.query(insertUsage, usageData);
+            // Add the cost onto the total amount on payment method table
+            const updateBill = `
+                UPDATE Payment_Method
+                SET bill_amount = bill_amount + $1
+                WHERE customer_id = $2;
+            `;
+            const updateBillData = [
+                callCost, 
+                customerId
+            ];
+            await userInput.query(updateBill, updateBillData);
+            // Add the cost onto the total amount on customer table
+            const updateCustBill = `
+                UPDATE customer
+                SET bill_amount = bill_amount + $1
+                WHERE customer_id = $2;
+            `;
+            const customerBillAmount = [
+                callCost,
+                customerId
+            ];
+            await userInput.query(updateCustBill, customerBillAmount);
+            BillAmount = callCost;
+
+            // Update transaction table
+            const insertTransaction = `
+            INSERT INTO Transactions (customer_id, transaction_date)
+            VALUES ($1, CURRENT_DATE)
+            ON CONFLICT DO NOTHING
+            RETURNING t_id;
+            `;
+            
+            const transactionData = [
+                customerId,
+            ];
+            const transactionResult = await userInput.query(insertTransaction, transactionData);
+            const transactionId = transactionResult.rows[0].t_id;
+
+            await userInput.query('COMMIT');
+        }
+        // Continue to insert a new customer
+        else{
+            // Calculate cost of call
+            const callCost = calculateCallCost(callduration, dataRate, perMB);
+            // Calculate data usage
+            const dataUsage = calculateDataUsage(callduration, dataRate);
+            const insertInfo = `
             INSERT INTO Customer (phone_number, first_name, last_name, payment_method, phone_plan, bill_amount, data_usage)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING customer_id, bill_amount, data_usage;
-        `;
-        const customerData = [
-            readData.phonenum,
-            readData.firstname,
-            readData.lastname,
-            readData.pay,
-            readData.plans,
-            0,
-            dataUsage,
-        ];
+            `;
+            const customerData = [
+                readData.phonenum,
+                readData.firstname,
+                readData.lastname,
+                readData.pay,
+                readData.plans,
+                0,
+                dataUsage,
+            ];
 
-        const result = await userInput.query(insertInfo, customerData);
-        const customerId = result.rows[0].customer_id;
-        // Update phone plan table
-        const insertPhone = `
+            const result = await userInput.query(insertInfo, customerData);
+            customerId = result.rows[0].customer_id;
+
+            // Update phone plan table
+            const insertPhone = `
             INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
             VALUES ($1, $2, $3, $4, $5);
-        `;
-        const phoneData = [
-            customerId,
-            readData.firstname,
-            readData.lastname,
-            readData.phonenum,
-            readData.plans
-        ];
-        await userInput.query(insertPhone, phoneData);
-        // Update payment method table
-        const insertPayment = `
-            INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amount)
-            VALUES ($1, $2, $3, $4);
-        `;
-        const paymentData = [
-            customerId,
-            readData.phonenum,
-            readData.pay,
-            0,  // Initial bill amount
-        ];
-        await userInput.query(insertPayment, paymentData);
+            `;
+            const phoneData = [
+                customerId,
+                readData.firstname,
+                readData.lastname,
+                readData.phonenum,
+                readData.plans
+            ];
+            await userInput.query(insertPhone, phoneData);
+            // Update payment method table
+            const insertPayment = `
+                INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amount)
+                VALUES ($1, $2, $3, $4);
+            `;
+            const paymentData = [
+                customerId,
+                readData.phonenum,
+                readData.pay,
+                0,  // Initial bill amount
+            ];
+            await userInput.query(insertPayment, paymentData);
 
-        // Update data usage table
-        const insertUsage = `
+            // Update data usage table
+            const insertUsage = `
             INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost, data_usage)
             VALUES ($1, $2, $3, $4, $5, $6);
-        `;
-        const usageData = [
-            customerId,
-            readData.phonenum,
-            callduration,
-            readData.calldate,
-            callCost,
-            dataUsage,
-        ];
-        await userInput.query(insertUsage, usageData);
-        // Add the cost onto the total amount on payment method table
-        const updateBill = `
-            UPDATE Payment_Method
-            SET bill_amount = bill_amount + $1
-            WHERE customer_id = $2;
-        `;
-        const BillAmount = [
-            callCost, 
-            customerId
-        ];
-        await userInput.query(updateBill, BillAmount);
-        // Add the cost onto the total amount on customer table
-        const updateCustBill = `
-            UPDATE customer
-            SET bill_amount = bill_amount + $1
-            WHERE customer_id = $2;
-        `;
-        const customerBillAmount = [
-            callCost,
-            customerId
-        ];
-        await userInput.query(updateCustBill, customerBillAmount);
+            `;
+            const usageData = [
+                customerId,
+                readData.phonenum,
+                callduration,
+                readData.calldate,
+                callCost,
+                0, //initial data usage amount
+            ];
+            await userInput.query(insertUsage, usageData);
+            // Add the cost onto the total amount on payment method table
+            const updateBill = `
+                UPDATE Payment_Method
+                SET bill_amount = bill_amount + $1
+                WHERE customer_id = $2;
+            `;
+            const updateBillData = [
+                callCost, 
+                customerId
+            ];
+            await userInput.query(updateBill, updateBillData);
+            // Add the cost onto the total amount on customer table
+            const updateCustBill = `
+                UPDATE customer
+                SET bill_amount = bill_amount + $1
+                WHERE customer_id = $2;
+            `;
+            const customerBillAmount = [
+                callCost,
+                customerId
+            ];
+            await userInput.query(updateCustBill, customerBillAmount);
+            BillAmount = callCost;
+
+            await userInput.query('COMMIT');
+        }
+
         // Update transaction table
         const insertTransaction = `
             INSERT INTO Transactions (customer_id, transaction_date)
@@ -528,10 +688,9 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             left: 54.5%;
                             transform: translate(-50%, -50%);
                         }
-
                         /*Button for customer info page*/
                         .buttoninfo{
-                            top: 73%;
+                            top: 75%;
                             left: 44%;
                             transform: translate(-50%, -50%);
                         }
@@ -543,31 +702,31 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         .firstname{
                             position: absolute;
-                            top: 25%;
+                            top: 27%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .lastname{
                             position: absolute;
-                            top: 30%;
+                            top: 32%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             position: absolute;
-                            top: 35%;
+                            top: 37%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phoneplan{
                             position: absolute;
-                            top: 43%;
+                            top: 45%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .payplan{
                             position: absolute;
-                            top: 48%;
+                            top: 50%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -593,7 +752,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 53%;
+                            top: 55%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -603,8 +762,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 59.5%;
-                            left: 50%;
+                            top: 61.5%;
+                            left: 59.5%;
                             transform: translate(-50%, -50%);
                         }
                         .creditcard{
@@ -613,7 +772,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 66%;
+                            top: 68%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -626,8 +785,6 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <br><br>
                     <div class = "tinyheader">
-                    <br><br>
-                    <br><br>
                     <p>Make a transaction</p>
                     </div>
                     <form action = "/cellphoneservices.html" method = "POST">
@@ -690,7 +847,6 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <div class="buttoninfo">
                         <button type = "submit"> View Transaction </button>
-
                     </div>
                     <div class="homeinfo">
                         <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
@@ -773,82 +929,82 @@ app.post('/cellphoneservices.html', async (req, res) => {
             <!DOCTYPE html>
             <html lang = "en">
                 <head>
-                <meta charset="UTF-8"> 
-                <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
-                <link rel="stylesheet" type="text/css" href="style.css">
-                <title>Cell Phone Company </title> 
-                <style>
-                    body {
-                        padding-top: 5em;
-                        display: flex;
-                        justify-content: center;
-                    }
-                    /*Page Gradient*/
-                    body.bg-gradient{
-                        height: 122vh;
-                        width: 100%; /* Add this line to make the gradient fill the entire width */
-                        background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
-                    }
-                    /*typewriter effect for all headers*/
-                    h1{
-                        color: #ffffff; /* Set text color to white */
-                        font-family: monospace;
-                        overflow: hidden;
-                        border-right: .15em solid rgb(255, 255, 255);
-                        white-space: nowrap;
-                        letter-spacing: .15em;
-                        animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
-                        height: 1.2em;
-                        text-align: center;
-                    }
-                    /* The typing effect */
-                    @keyframes typing {
-                        from { width: 0 }
-                        to { width: 100% }
-                    }
-                    /* The typewriter cursor effect */
-                    @keyframes blink-caret {
-                        from, to { border-color: transparent }
-                        50% { border-color: rgb(255, 255, 255); }
-                    }
-                    p {
-                        text-align: center;
-                        color: white;
-                        font-family: monospace;
-                    }
-                    /*CustomerID, first name*/
-                    .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                    }
-                    /* Container for positioning */
-                    .content-container {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 100vh;
-                    }
-                    /*Button to view transactions and customer info*/
-                    .button, .buttoninfo{
-                        color: white;
-                        background-color: rgb(78, 131, 177);
-                        position: absolute;
-                        padding: 10px 20px; 
-                        top: 40%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        cursor: pointer;
-                        font-family: monospace;
-                        text-align: center;
-                        text-decoration: none;
-                        border: 1px solid white;
-                        transition: background-color 0.3s;
-                        border-radius: 12px;
-                    }
-                    /*Button for Home Button*/
+                    <meta charset="UTF-8"> 
+                    <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
+                    <link rel="stylesheet" type="text/css" href="style.css">
+                    <title>Cell Phone Company </title> 
+                    <style>
+                        body {
+                            padding-top: 5em;
+                            display: flex;
+                            justify-content: center;
+                        }
+                        /*Page Gradient*/
+                        body.bg-gradient{
+                            height: 122vh;
+                            width: 100%; /* Add this line to make the gradient fill the entire width */
+                            background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
+                        }
+                        /*typewriter effect for all headers*/
+                        h1{
+                            color: #ffffff; /* Set text color to white */
+                            font-family: monospace;
+                            overflow: hidden;
+                            border-right: .15em solid rgb(255, 255, 255);
+                            white-space: nowrap;
+                            letter-spacing: .15em;
+                            animation: typing 2.5s steps(40, end), blink-caret 1.5s step-end infinite;
+                            height: 1.2em;
+                            text-align: center;
+                        }
+                        /* The typing effect */
+                        @keyframes typing {
+                            from { width: 0 }
+                            to { width: 100% }
+                        }
+                        /* The typewriter cursor effect */
+                        @keyframes blink-caret {
+                            from, to { border-color: transparent }
+                            50% { border-color: rgb(255, 255, 255); }
+                        }
+                        p {
+                            text-align: center;
+                            color: white;
+                            font-family: monospace;
+                        }
+                        /*CustomerID, first name*/
+                        .customerId, .firstname, .lastname, .phonenum, .phoneplan, .payplan{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                        }
+                        /* Container for positioning */
+                        .content-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                        }
+                        /*Button to view transactions and customer info*/
+                        .button, .buttoninfo{
+                            color: white;
+                            background-color: rgb(78, 131, 177);
+                            position: absolute;
+                            padding: 10px 20px; 
+                            top: 40%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            cursor: pointer;
+                            font-family: monospace;
+                            text-align: center;
+                            text-decoration: none;
+                            border: 1px solid white;
+                            transition: background-color 0.3s;
+                            border-radius: 12px;
+                        }
+                        /*Button for Home Button*/
                         .button2, .homeinfo{
                             color: white;
                             background-color: rgb(78, 131, 177);
@@ -864,110 +1020,110 @@ app.post('/cellphoneservices.html', async (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                    /*Button for Home button*/
-                        .homeinfo{
+                        }
+                        /*Button for Home button*/
+                            .homeinfo{
+                                top: 75%;
+                                left: 54.5%;
+                                transform: translate(-50%, -50%);
+                        }
+                        /*Button for customer info page*/
+                        .buttoninfo{
                             top: 75%;
-                            left: 54.5%;
+                            left: 44%;
                             transform: translate(-50%, -50%);
-                    }
-                    /*Button for customer info page*/
-                    .buttoninfo{
-                        top: 75%;
-                        left: 44%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .button:hover, .buttoninfo:hover{
-                        background-color: rgb(66, 112, 153);
-                    }
-                    .button:hover, .homeinfo:hover{
-                        background-color: rgb(66, 112, 153);
-                    }
-                    .firstname{
-                        position: absolute;
-                        top: 27%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .lastname{
-                        position: absolute;
-                        top: 32%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .phonenum{
-                        position: absolute;
-                        top: 37%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .phoneplan{
-                        position: absolute;
-                        top: 45%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .payplan{
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .viewService{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 75%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .tinyheader{
-                        position: absolute;
-                        top: 15%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .calldate{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 55%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .callduration{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 61.5%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .creditcard{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 68%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                    }
-                    .viewnewCust{
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 700%;
-                        left: -16%;
-                        transform: translate(-50%, -50%);
+                        }
+                        .button:hover, .buttoninfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .button:hover, .homeinfo:hover{
+                            background-color: rgb(66, 112, 153);
+                        }
+                        .firstname{
+                            position: absolute;
+                            top: 27%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .lastname{
+                            position: absolute;
+                            top: 32%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phonenum{
+                            position: absolute;
+                            top: 37%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .phoneplan{
+                            position: absolute;
+                            top: 45%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .payplan{
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .viewService{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 75%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .tinyheader{
+                            position: absolute;
+                            top: 15%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .calldate{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 55%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .callduration{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 61.5%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .creditcard{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 68%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+                        .viewnewCust{
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 700%;
+                            left: -16%;
+                            transform: translate(-50%, -50%);
                         }
                     </style>
                 </head>
@@ -1057,8 +1213,8 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <p>Payment Method: ${pay}</p>
                         <p>Call Date: ${calldate}</p>
                         <p>Call Duration: ${callduration}</p>
-                        <p>Call Cost: $${callCost.toFixed(2)}</p>
-                        <p>Data Usage: ${dataUsage.toFixed(2)} MB</p>
+                        <p>Call Cost: $${typeof callCost === 'number' ? callCost.toFixed(2) : 'N/A'}</p>
+                        <p>Data Usage: ${typeof dataUsage === 'number' ? dataUsage.toFixed(2): 'N/A'} MB</p>
                         <p>Total Bill Amount: $${updateBillAmount}</p>
                         <p>Transaction time: ${elapsed} milliseconds<p>
                     </div>
@@ -1070,7 +1226,6 @@ app.post('/cellphoneservices.html', async (req, res) => {
         return res.status(500).send("Error: " + err.message);
     }
 });
-
 
 // Link to all customers' payment method
 app.get('/paymentmethod.html', async (req, res) => {
@@ -1277,7 +1432,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                 <button type = "submit"> View Report</button>
             </div>
             <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <div class="paymentReport">
                 ${paymethodHtml}
@@ -1380,21 +1535,21 @@ app.get('/phoneplans.html', async(req, res) => {
                         border-radius: 12px;
                     }
                     /*Button for Home Button*/
-                        .button2, .homebutton{
-                            color: white;
-                            background-color: rgb(78, 131, 177);
-                            position: absolute;
-                            padding: 10px 20px; 
-                            top: 30%;
-                            left: 55%;
-                            transform: translate(-50%, -50%);
-                            cursor: pointer;
-                            font-family: monospace;
-                            text-align: center;
-                            text-decoration: none;
-                            border: 1px solid white;
-                            transition: background-color 0.3s;
-                            border-radius: 12px;
+                    .button2, .homebutton{
+                        color: white;
+                        background-color: rgb(78, 131, 177);
+                        position: absolute;
+                        padding: 10px 20px; 
+                        top: 30%;
+                        left: 55%;
+                        transform: translate(-50%, -50%);
+                        cursor: pointer;
+                        font-family: monospace;
+                        text-align: center;
+                        text-decoration: none;
+                        border: 1px solid white;
+                        transition: background-color 0.3s;
+                        border-radius: 12px;
                     }
                     /*Button for Home button*/
                         .homeinfo{
@@ -1417,10 +1572,12 @@ app.get('/phoneplans.html', async(req, res) => {
                     .phoneplanreport{
                         text-align: center;
                         position: absolute;
+                        letter-spacing: .15em;
                         color: white;
                         font-family: monospace;
                         top: 20%;
                         left: 50%;
+                        width: 800%;
                         transform: translate(-50%, -50%);
                     }
                     h3{
@@ -1435,8 +1592,8 @@ app.get('/phoneplans.html', async(req, res) => {
                         letter-spacing: .15em;
                         color: white;
                         font-family: monospace;
-                        top: 520%;
-                        left: -25%;
+                        top: 50%;
+                        left: 50%;
                         width: 800%;
                         transform: translate(-50%, -50%);
                     }
@@ -1464,8 +1621,9 @@ app.get('/phoneplans.html', async(req, res) => {
                 <button type = "submit"> View Report</button>
             </div>
             <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
-            </form>
+                <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+            </div>
+        </form>
             <div class="planReport">
                 ${planHtml}
             </div>
@@ -1637,14 +1795,14 @@ app.get('/datausage.html', async (req, res) => {
                             text-decoration: none;
                             border: 1px solid white;
                             transition: background-color 0.3s;
-                            border-radius: 12px;
-                    }
-                    /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                                border-radius: 12px;
+                        }
+                        /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1680,15 +1838,15 @@ app.get('/datausage.html', async (req, res) => {
                             transform: translate(-50%, -50%);
                         }
                         .data-item{ /*Listed data usage*/
-                        color: white;
-                        font-family: monospace;
-                        text-align: center;
-                        letter-spacing: .15em;
-                        position: absolute;
-                        top: 250%;
-                        width: 1300%;
-                        left: -19%;
-                        transform: translate(-50%, -50%);
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
+                            position: absolute;
+                            top: 250%;
+                            width: 1300%;
+                            left: -19%;
+                            transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             font-family: monospace;
@@ -1733,7 +1891,7 @@ app.get('/datausage.html', async (req, res) => {
                         <button type = "submit"> View Report</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                 ${dataUsagehtml}
@@ -1815,8 +1973,8 @@ app.get('/deleterows.html', (req, res) => {
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 40%;
-                            left: 43%;
+                            top: 43%;
+                            left: 50%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -1842,13 +2000,13 @@ app.get('/deleterows.html', (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                        /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                        }
+                            /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -1935,7 +2093,7 @@ app.get('/deleterows.html', (req, res) => {
                         <button type = "submit"> DELETE ALL ROWS</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
             </form>
             <!--Link JS file-->
         <script src="hw2.js"></script>
@@ -2031,7 +2189,7 @@ app.post('/deleterows.html', async (req, res) => {
                             position: absolute;
                             padding: 10px 20px; 
                             top: 40%;
-                            left: 43%;
+                            left: 43%;;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
@@ -2057,13 +2215,13 @@ app.post('/deleterows.html', async (req, res) => {
                             border: 1px solid white;
                             transition: background-color 0.3s;
                             border-radius: 12px;
-                    }
-                        /*Button for Home button*/
-                        .homeinfo{
-                            top: 40%;
-                            left: 52%;
-                            transform: translate(-50%, -50%);
-                    }
+                        }
+                            /*Button for Home button*/
+                            .homeinfo{
+                                top: 40%;
+                                left: 52%;
+                                transform: translate(-50%, -50%);
+                        }
                         /*Button for customer info page*/
                         .buttoninfo{
                             top: 60%;
@@ -2150,7 +2308,7 @@ app.post('/deleterows.html', async (req, res) => {
                         <button type = "submit" id="deleteButton"> DELETE ALL ROWS</button>
                     </div>
                     <div class ="homebutton">
-                        <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
+                    <a href= "http://localhost:3000/" ><button type = "button" > Go Home </button></a>
                 </form>
             <div class="data-item">
                ${message}
