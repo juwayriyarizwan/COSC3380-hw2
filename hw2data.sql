@@ -14,19 +14,13 @@ CREATE TABLE Customer(
 CREATE TABLE Phone_Plan(
 	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
-	phone_number BIGINT NOT NULL UNIQUE,
-	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
 	phone_plan VARCHAR(20),
-	first_name VARCHAR(20),
-	last_name VARCHAR(20)
 );
 
 -- Payment method (contains only information about customer and their method of payment)
 CREATE TABLE Payment_Method(
 	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
-	phone_number BIGINT NOT NULL UNIQUE,
-	FOREIGN KEY (phone_number) REFERENCES Customer(phone_number),
 	payment_method VARCHAR(10),
 	bill_amount DECIMAL (10, 2)
 );
