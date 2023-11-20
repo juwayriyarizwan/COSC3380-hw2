@@ -169,7 +169,7 @@ app.get('/', async (req, res) =>{
                         }
                         p{ /*Please enter your CustomerID*/
                             position: absolute;
-                            top: 20%;
+                            top: 18%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -190,8 +190,14 @@ app.get('/', async (req, res) =>{
                             transform: translate(-50%, -50%);
                         }
                         .transaction-item{ /*Listed transactions*/
+                            color: white;
+                            font-family: monospace;
+                            text-align: center;
+                            letter-spacing: .15em;
                             position: absolute;
-                            top: 60%;
+                            top: 700px;
+                            right: -150px;
+                            width: 100%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -215,7 +221,7 @@ app.get('/', async (req, res) =>{
                         .readme{
                             font-family: monospace;
                             position: absolute;
-                            top: 23%;
+                            top: 21.7%;
                             left: 50%;      
                             transform: translate(-50%, -50%);
                         }
@@ -690,7 +696,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Button for customer info page*/
                         .buttoninfo{
-                            top: 75%;
+                            top: 73%;
                             left: 44%;
                             transform: translate(-50%, -50%);
                         }
@@ -702,31 +708,31 @@ app.get('/cellphoneservices.html', async (req, res) => {
                         }
                         .firstname{
                             position: absolute;
-                            top: 27%;
+                            top: 25%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .lastname{
                             position: absolute;
-                            top: 32%;
+                            top: 30%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phonenum{
                             position: absolute;
-                            top: 37%;
+                            top: 35%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .phoneplan{
                             position: absolute;
-                            top: 45%;
+                            top: 43%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .payplan{
                             position: absolute;
-                            top: 50%;
+                            top: 48%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -752,7 +758,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 55%;
+                            top: 53%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -762,8 +768,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 61.5%;
-                            left: 59.5%;
+                            top: 59.5%;
+                            left: 50%;
                             transform: translate(-50%, -50%);
                         }
                         .creditcard{
@@ -772,7 +778,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                             text-align: center;
                             letter-spacing: .15em;
                             position: absolute;
-                            top: 68%;
+                            top: 66%;
                             left: 50%;
                             transform: translate(-50%, -50%);
                         }
@@ -785,6 +791,8 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     </div>
                     <br><br>
                     <div class = "tinyheader">
+                    <br><br>
+                    <br><br>
                     <p>Make a transaction</p>
                     </div>
                     <form action = "/cellphoneservices.html" method = "POST">
@@ -941,7 +949,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         }
                         /*Page Gradient*/
                         body.bg-gradient{
-                            height: 122vh;
+                            height: 126vh;
                             width: 100%; /* Add this line to make the gradient fill the entire width */
                             background: linear-gradient(to bottom, #00ccff 0%, #000099 100%);
                         }
@@ -1397,7 +1405,7 @@ app.get('/paymentmethod.html', async (req, res) => {
                         text-align: center;
                         letter-spacing: .15em;
                         position: absolute;
-                        top: 850%;
+                        top: 570%;
                         left: -22%;
                         width: 800%;
                         transform: translate(-50%, -50%);
@@ -2357,11 +2365,13 @@ app.get('/hw2.README', async(req, res) => {
         <p>The Payment Methods link allows the user to select between the two types of payment methods: Automatic and Manual.
         With the drop down, the user simply selects a payment method to view and clicks the "View Report" button. 
         The Payment Method Report lists all the customers that have selected that payment when making a transaction. 
+        **Disclaimer: When changing payment method, sometimes double clicking on "View Report" button can allow the user to see the updated report. 
         </p>
         <h3>Phone Plans</h3>
         <p>The Phone Plans link allows the user to select between the two types of phone plans: Pre-paid and Post-paid.
         With the drop down, the user simply selects a phone plan to view and clicks the "View Report" button. 
         The Phone Plan Report lists all the customers that have selected that payment when making a transaction.
+        **Disclaimer: When changing phone plans, sometimes double clicking on "View Report" button can allow the user to see the updated report. 
 
         Disclaimer: If "Delete all rows" link has been executed, the user will not see any report for phone plans.
         To see a report, the user must make a new transaction and come back to this link.
