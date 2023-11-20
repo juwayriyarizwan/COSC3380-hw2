@@ -358,14 +358,11 @@ async function insertCustomer(readData, res, callduration, creditcard){
             const phonePlanCount = await userInput.query(checkPhonePlan, [customerId, readData.plans]);
             if (phonePlanCount.rows[0].count === 0) {
                 const insertPhone = `
-                    INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
-                    VALUES ($1, $2, $3, $4, $5);
+                    INSERT INTO Phone_Plan (customer_id, phone_plan)
+                    VALUES ($1, $2);
                 `;
                 const phoneData = [
                     customerId,
-                    readData.firstname,
-                    readData.lastname,
-                    readData.phonenum,
                     readData.plans
                 ];
                 await userInput.query(insertPhone, phoneData);
@@ -394,12 +391,11 @@ async function insertCustomer(readData, res, callduration, creditcard){
             const paymentMethodCount = await userInput.query(checkPayment, [customerId, readData.pay]);
             if (paymentMethodCount.rows[0].count === 0) {
                 const insertPayment = `
-                    INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amount)
-                    VALUES ($1, $2, $3, $4);
+                    INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
+                    VALUES ($1, $2, $3);
                 `;
                 const paymentData = [
                     customerId,
-                    readData.phonenum,
                     readData.pay,
                     0,  // Initial bill amount
                 ];
@@ -433,7 +429,7 @@ async function insertCustomer(readData, res, callduration, creditcard){
                 callduration,
                 readData.calldate,
                 callCost,
-                0, //initial data usage amount
+                dataUsage, // calculated data usage
             ];
             await userInput.query(insertUsage, usageData);
             // Add the cost onto the total amount on payment method table
@@ -502,25 +498,21 @@ async function insertCustomer(readData, res, callduration, creditcard){
 
             // Update phone plan table
             const insertPhone = `
-            INSERT INTO Phone_Plan (customer_id, first_name, last_name, phone_number, phone_plan)
-            VALUES ($1, $2, $3, $4, $5);
+            INSERT INTO Phone_Plan (customer_id, phone_plan)
+            VALUES ($1, $2);
             `;
             const phoneData = [
                 customerId,
-                readData.firstname,
-                readData.lastname,
-                readData.phonenum,
                 readData.plans
             ];
             await userInput.query(insertPhone, phoneData);
             // Update payment method table
             const insertPayment = `
-                INSERT INTO Payment_Method (customer_id, phone_number, payment_method, bill_amount)
-                VALUES ($1, $2, $3, $4);
+                INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
+                VALUES ($1, $2, $3);
             `;
             const paymentData = [
                 customerId,
-                readData.phonenum,
                 readData.pay,
                 0,  // Initial bill amount
             ];
@@ -537,7 +529,7 @@ async function insertCustomer(readData, res, callduration, creditcard){
                 callduration,
                 readData.calldate,
                 callCost,
-                0, //initial data usage amount
+                dataUsage, // calculated data usage
             ];
             await userInput.query(insertUsage, usageData);
             // Add the cost onto the total amount on payment method table
@@ -1458,12 +1450,14 @@ app.get('/phoneplans.html', async(req, res) => {
     {
         try{
             const result = await pool.query(`
-                SELECT 
-                    customer_id, phone_number, first_name, last_name
-                 FROM
-                    Phone_Plan
-                WHERE
-                    phone_plan = $1
+            SELECT 
+                p.customer_id, c.phone_number, c.first_name, c.last_name
+            FROM
+                Phone_Plan p
+            JOIN
+                Customer c ON p.customer_id = c.customer_id
+            WHERE
+                p.phone_plan = $1
                 `, [selectedPlan]);
             // Display all customers
             if(result.rows.length > 0){
