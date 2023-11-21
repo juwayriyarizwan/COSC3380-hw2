@@ -2380,6 +2380,8 @@ app.get('/hw2.README', async(req, res) => {
         To confirm that the rows truly are deleted after selecting YES, the user can go back to the Phone Plans link and select a plan. 
         The report will not be displayed once the rows are deleted. 
         </p>
+        <h3>Demo Video</h3>
+        <a href="https://drive.google.com/file/d/1nzJ4mukn1ojoOOr8DMnH4ErrmK_7tddm/view?usp=sharing" target="_blank">Watch the Demo Video</a>
     `);
 })
 
