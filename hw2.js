@@ -1975,8 +1975,8 @@ app.get('/deleterows.html', (req, res) => {
                             background-color: rgb(78, 131, 177);
                             position: absolute;
                             padding: 10px 20px; 
-                            top: 43%;
-                            left: 50%;
+                            top: 40%;
+                            left: 43%;
                             transform: translate(-50%, -50%);
                             cursor: pointer;
                             font-family: monospace;
