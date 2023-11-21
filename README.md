@@ -36,3 +36,6 @@
 ## Delete all rows
     The Delete all rows link allows the user to delete all the rows that were stored in the Phone_Plan table. A confirmation message is asked to the user. If the user selects no, it will be displayed in the console. To confirm that the rows truly are deleted after selecting YES, the user can go back to the Phone Plans link and select a plan. 
     The report will not be displayed once the rows are deleted. 
+
+## Demo Video
+    https://drive.google.com/file/d/1nzJ4mukn1ojoOOr8DMnH4ErrmK_7tddm/view?usp=sharing 
