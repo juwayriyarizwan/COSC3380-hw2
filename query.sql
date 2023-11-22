@@ -19,8 +19,9 @@ WHERE customer_id = 1;
 -- Trace: Begin to update phone plan
 SELECT COUNT(*) FROM Phone_Plan
 WHERE customer_id = 1 AND phone_plan = 'Post-paid';
+INSERT INTO Phone_Plan (customer_id, phone_plan)
 VALUES (1, 'Post-paid')
-ON CONFLICT (customer_id, phone_plan) DO NOTHING;
+ON CONFLICT (customer_id) DO NOTHING;
 -- Trace: End to update phone plan
 
 -- Trace: Begin to update payment method
@@ -28,7 +29,7 @@ SELECT COUNT(*) FROM Payment_Method
 WHERE customer_id = 1 AND payment_method = 'Automatic';
 INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
 VALUES (1, 'Automatic', 0)
-ON CONFLICT (customer_id, payment_method) DO NOTHING;
+ON CONFLICT (customer_id) DO NOTHING;
 -- Trace: End to update payment method
 
 -- Trace: Begin to update data usage
