@@ -66,7 +66,7 @@ VALUES (currval(pg_get_serial_sequence('customer', 'customer_id')), $5);
 
 -- Update Payment Method table
 INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
-VALUES (currval(pg_get_serial_sequence('customer', 'customer_id')), $4, 0)
+VALUES (currval(pg_get_serial_sequence('customer', 'customer_id')), $4, 0);
 
 -- Update Data Usage table 
 INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost, data_usage)
