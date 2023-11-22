@@ -14,7 +14,7 @@ CREATE TABLE Customer(
 CREATE TABLE Phone_Plan(
 	customer_id SERIAL PRIMARY KEY,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
-	phone_plan VARCHAR(20),
+	phone_plan VARCHAR(20)
 );
 
 -- Payment method (contains only information about customer and their method of payment)
@@ -43,6 +43,11 @@ CREATE TABLE Transactions (
     customer_id SERIAL,
     transaction_date DATE,
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
+);
+
+CREATE TABLE Bank_Account(
+	credit_card VARCHAR(15) PRIMARY KEY,
+	balance DECIMAL(10, 2)
 );
 
 -- Insert money in bank
