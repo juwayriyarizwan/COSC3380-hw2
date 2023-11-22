@@ -45,32 +45,6 @@ CREATE TABLE Transactions (
 	FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
 );
 
--- Function where customer can only create maximum of 100 transactions
-CREATE OR REPLACE FUNCTION check_transaction_count()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF (
-        SELECT COUNT(*)
-        FROM Transactions
-        WHERE customer_id = NEW.customer_id
-    ) >= 100 THEN
-        RAISE EXCEPTION 'Customer has reached the maximum transaction limit of 100';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger
-CREATE TRIGGER before_transaction_insert
-BEFORE INSERT ON Transactions
-FOR EACH ROW
-EXECUTE FUNCTION check_transaction_count();
-
-CREATE TABLE Bank_Account(
-	credit_card VARCHAR(15) PRIMARY KEY,
-	balance DECIMAL(10, 2)
-);
-
 -- Insert money in bank
 INSERT INTO Bank_Account(credit_card, balance)
 VALUES ('123456789012345', 1000.00),
