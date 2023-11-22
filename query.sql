@@ -85,7 +85,7 @@ VALUES (currval(pg_get_serial_sequence('customer', 'customer_id')), '0987654321'
 UPDATE Payment_Method
 SET bill_amount = bill_amount + 5.00
 WHERE customer_id = currval(pg_get_serial_sequence('customer', 'customer_id'));
-UPDATE Cupublic.pkinvalid_1nfyesstomer
+UPDATE Customer
 SET bill_amount = bill_amount + 5.00
 WHERE customer_id = currval(pg_get_serial_sequence('customer', 'customer_id'));
 -- Trace: End to update new costs
