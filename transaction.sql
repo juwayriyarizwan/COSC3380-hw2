@@ -20,7 +20,7 @@ FROM Phone_Plan
 WHERE customer_id = $6 AND phone_plan = $5;
 INSERT INTO Phone_Plan (customer_id, phone_plan)
 VALUES ($6, $5)
-ON CONFLICT (customer_id, phone_plan) DO NOTHING;
+ON CONFLICT (customer_id) DO NOTHING;
 
 -- Update Payment Method table
 SELECT COUNT(*)
@@ -28,7 +28,7 @@ FROM Payment_Method
 WHERE customer_id = $6 AND payment_method = $4;
 INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
 VALUES ($6, $4, 0)
-ON CONFLICT (customer_id, payment_method) DO NOTHING;
+ON CONFLICT (customer_id) DO NOTHING;
 
 -- Update Data Usage table 
 INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost, data_usage)
