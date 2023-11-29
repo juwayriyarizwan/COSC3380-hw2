@@ -317,7 +317,7 @@ async function insertCustomer(readData, res, callduration, creditcard){
     let BillAmount;
     let dataUsage;
     try{
-        await userInput.query('BEGIN');
+        await userInput.query('BEGIN TRANSACTION');
 
         // Check if there is an existing customer
         const checkExistingCust = `
@@ -573,7 +573,7 @@ async function insertCustomer(readData, res, callduration, creditcard){
         await userInput.query('COMMIT');
         return {customerId, transactionId, BillAmount, dataUsage};
     }catch (error) {
-        await pool.query('ROLLBACK');
+        await userInput.query('ROLLBACK');
         res.status(500).send("Transaction error: " + error.message); 
         throw error;
     } finally {
@@ -591,7 +591,7 @@ app.get('/cellphoneservices.html', async (req, res) => {
                     <meta charset="UTF-8"> 
                     <meta name = "viewport" content="width=device-width, initial-scale=1.0" />
                     <link rel="stylesheet" type="text/css" href="style.css">
-                    <title>Cell Phone Company </title> 
+                    <title>Cell Phone Company</title> 
                     <style>
                         body {
                             padding-top: 5em;
@@ -924,6 +924,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
         // Record elapsed time
         const elapsed = endTime - startTime;
         console.log(`Transaction time: ${elapsed} milliseconds`);
+        const MBdata = calculateDataUsage(callduration, dataRate);
         // Print to webpage
         res.send(`
             <!DOCTYPE html>
@@ -1214,7 +1215,7 @@ app.post('/cellphoneservices.html', async (req, res) => {
                         <p>Call Date: ${calldate}</p>
                         <p>Call Duration: ${callduration}</p>
                         <p>Call Cost: $${typeof callCost === 'number' ? callCost.toFixed(2) : 'N/A'}</p>
-                        <p>Data Usage: ${typeof dataUsage === 'number' ? dataUsage.toFixed(2): 'N/A'} MB</p>
+                        <p>Data Usage: ${MBdata} MB</p>
                         <p>Total Bill Amount: $${updateBillAmount}</p>
                         <p>Transaction time: ${elapsed} milliseconds<p>
                     </div>
