@@ -1,0 +1,98 @@
+/ Add new customers
+async function insertCustomer(readData, res, callduration, creditcard){
+    const userInput = await pool.connect();
+    let customerId;
+    let BillAmount;
+    let dataUsage;
+    try{
+        // Calculate call cost and data usage outside of the transaction block
+        const callCost = calculateCallCost(callduration, dataRate, perMB);
+        const dataUsage = calculateDataUsage(callduration, dataRate);
+        const transactionQuery = `
+        BEGIN;
+
+        UPDATE Customer
+        SET payment_method = $1,
+            phone_plan = $2
+        WHERE phone_number = $3 AND first_name = $4 AND last_name = $5;
+        
+        INSERT INTO Customer (phone_number, first_name, last_name, payment_method, phone_plan, bill_amount, data_usage)
+        SELECT $3, $4, $5, $1, $2, 0, 0
+        WHERE NOT EXISTS (
+            SELECT * FROM Customer
+            WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        );
+        
+        INSERT INTO Phone_Plan (customer_id, phone_plan)
+        SELECT customer_id, $2
+        FROM Customer
+        WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        ON CONFLICT (customer_id) DO UPDATE SET phone_plan = $2;
+        
+        INSERT INTO Payment_Method (customer_id, payment_method, bill_amount)
+        SELECT customer_id, $1, 0
+        FROM Customer
+        WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        ON CONFLICT (customer_id) DO UPDATE SET payment_method = $1;
+        
+        INSERT INTO Data_Usage (customer_id, phone_number, call_time, call_date, call_cost, data_usage)
+        SELECT customer_id, $3, $6, $7, $8, $9
+        FROM Customer
+        WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        ON CONFLICT (customer_id) DO UPDATE
+        SET call_time = call_time + $6,
+            call_date = call_date + $7,
+            call_cost = call_cost + $8,
+            data_usage = data_usage + $9;
+        
+        UPDATE Payment_Method
+        SET bill_amount = bill_amount + $8
+        WHERE customer_id IN (
+            SELECT customer_id
+            FROM Customer
+            WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        );
+        
+        UPDATE Customer
+        SET bill_amount = bill_amount + $8
+        WHERE customer_id IN (
+            SELECT customer_id
+            FROM Customer
+            WHERE phone_number = $3 AND first_name = $4 AND last_name = $5
+        );
+        
+        INSERT INTO Transactions (customer_id, transaction_date)
+        SELECT customer_id, CURRENT_DATE
+        FROM Customer
+        WHERE phone_number = $3 AND first_name = $4 AND last_name = $5;
+        
+        COMMIT;
+    `;
+    const queryParams = [
+        readData.pay,
+        readData.plans,
+        readData.phonenum,
+        readData.firstname,
+        readData.lastname,
+        callduration,
+        readData.calldate,
+        callCost,
+        dataUsage
+    ];
+    await userInput.query({ text: transactionQuery, values: queryParams });
+
+        // Retrieve customer information
+        const result = await userInput.query(`
+        SELECT customer_id, BillAmount, dataUsage
+        `);
+        const customerInfo = result.rows[0];
+        return customerInfo;
+
+        }catch (error) {
+            await userInput.query('ROLLBACK');
+            res.status(500).send("Transaction error: " + error.message); 
+            throw error;
+        } finally {
+        userInput.release();
+    }
+}
