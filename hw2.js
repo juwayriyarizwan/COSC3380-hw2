@@ -317,7 +317,7 @@ async function insertCustomer(readData, res, callduration, creditcard){
     let BillAmount;
     let dataUsage;
     try{
-        await userInput.query('BEGIN TRANSACTION');
+        await userInput.query('BEGIN');
 
         // Check if there is an existing customer
         const checkExistingCust = `
